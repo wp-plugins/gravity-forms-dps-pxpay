@@ -1,0 +1,31 @@
+/* styles for Gravity Forms DPS PxPay admin pages */
+
+#icon-edit.icon32-posts-gfdpspxpay_feed,
+#icon-gf_edit_forms {
+	background: transparent url(images/dps-pxpay-32.png) no-repeat;
+}
+
+.postbox-container td.mceIframeContainer {
+	background-color: #fff;
+}
+
+.gfdpspxpay-details {
+	width: 97%;
+}
+
+.gfdpspxpay-details th {
+	text-align: right;
+	width: 14em;
+}
+
+#meta_gfdpspxpay_feed_urls label {
+	font-weight: bold;
+}
+
+.gfdpspxpay-opt-admin-test {
+	color: #c00;
+}
+
+.no-js .gfdpspxpay-opt-admin-test {
+	display: none;
+}
