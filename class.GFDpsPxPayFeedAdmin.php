@@ -216,7 +216,7 @@ class GFDpsPxPayFeedAdmin {
 				<td>
 					<select size="1" name="_gfdpspxpay_merchant_ref">
 						<?php if ($fields) echo self::selectFields($MerchantReference, $fields); ?>
-					</select>
+					</select> <span class='required' title='required field'>*</span>
 				</td>
 			</tr>
 

@@ -24,6 +24,14 @@ jQuery(function ($) {
 		}
 	});
 
+	// ensure that feed has Merchant Reference selected when saved
+	$("form#post").submit(function(event) {
+		if ($("select[name='_gfdpspxpay_merchant_ref']", this).val() === '') {
+			event.preventDefault();
+			alert("You must map the Merchant Reference to a field in the form, or payment will not be processed!");
+		}
+	});
+
 	/**
 	* check for feed mapping to selected form, ensure it's this feed
 	* @param {String} feedID the feed ID, as a string; "0" for no feed found

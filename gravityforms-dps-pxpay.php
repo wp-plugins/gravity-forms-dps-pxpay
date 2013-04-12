@@ -3,7 +3,7 @@
 Plugin Name: Gravity Forms DPS PxPay
 Plugin URI: http://snippets.webaware.com.au/wordpress-plugins/gravityforms-dps-pxpay/
 Description: Integrates Gravity Forms with DPS PxPay payment gateway, enabling end users to purchase goods and services through Gravity Forms.
-Version: 1.0.0
+Version: 1.0.1
 Author: WebAware
 Author URI: http://www.webaware.com.au/
 */
@@ -30,11 +30,16 @@ useful references:
 http://www.paymentexpress.com/Technical_Resources/Ecommerce_Hosted/PxPay
 */
 
+/*
+TODO: properly handle validation exceptions
+TODO: expand readme doco of field mappings (ref: http://wordpress.org/support/topic/pxpay-invoice-reference-cannot-be-empty)
+*/
+
 if (!defined('GFDPSPXPAY_PLUGIN_ROOT')) {
 	define('GFDPSPXPAY_PLUGIN_ROOT', dirname(__FILE__) . '/');
 	define('GFDPSPXPAY_PLUGIN_NAME', basename(dirname(__FILE__)) . '/' . basename(__FILE__));
 	define('GFDPSPXPAY_PLUGIN_OPTIONS', 'gfdpspxpay_plugin');
-	define('GFDPSPXPAY_PLUGIN_VERSION', '1.0.0');
+	define('GFDPSPXPAY_PLUGIN_VERSION', '1.0.1');
 
 	// custom post types
 	define('GFDPSPXPAY_TYPE_FEED', 'gfdpspxpay_feed');
@@ -70,8 +75,6 @@ function gfdpspxpay_autoload($class_name) {
 		require GFDPSPXPAY_PLUGIN_ROOT . $classMap[$class_name];
 	}
 }
-
-// register a class (static) method for autoloading required classes
 spl_autoload_register('gfdpspxpay_autoload');
 
 // instantiate the plug-in

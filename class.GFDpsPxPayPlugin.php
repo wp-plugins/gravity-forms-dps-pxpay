@@ -62,7 +62,7 @@ class GFDpsPxPayPlugin {
 
 		$this->options = (array) get_option(GFDPSPXPAY_PLUGIN_OPTIONS);
 
-		if (count(array_diff_assoc($defaults, $this->options)) > 0) {
+		if (count(array_diff(array_keys($defaults), array_keys($this->options))) > 0) {
 			$this->options = array_merge($defaults, $this->options);
 			update_option(GFDPSPXPAY_PLUGIN_OPTIONS, $this->options);
 		}
@@ -449,20 +449,25 @@ class GFDpsPxPayPlugin {
 	* @return string
 	*/
 	public function gformReplaceMergeTags($text, $form, $lead, $url_encode, $esc_html, $nl2br, $format) {
-		$authCode = gform_get_meta($lead['id'], 'authcode');
+		$gateway = gform_get_meta($lead['id'], 'payment_gateway');
+		if ($gateway == 'gfdpspxpay') {
+			$authCode = gform_get_meta($lead['id'], 'authcode');
 
-		$tags = array (
-			'{transaction_id}',
-			'{payment_amount}',
-			'{authcode}',
-		);
-		$values = array (
-			isset($lead['transaction_id']) ? $lead['transaction_id'] : '',
-			isset($lead['payment_amount']) ? $lead['payment_amount'] : '',
-			!empty($authCode) ? $authCode : '',
-		);
+			$tags = array (
+				'{transaction_id}',
+				'{payment_amount}',
+				'{authcode}',
+			);
+			$values = array (
+				isset($lead['transaction_id']) ? $lead['transaction_id'] : '',
+				isset($lead['payment_amount']) ? $lead['payment_amount'] : '',
+				!empty($authCode) ? $authCode : '',
+			);
 
-		return str_replace($tags, $values, $text);
+			$text = str_replace($tags, $values, $text);
+		}
+
+		return $text;
 	}
 
 	/**

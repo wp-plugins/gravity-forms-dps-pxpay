@@ -180,7 +180,7 @@ class GFDpsPxPayPayment {
 		$xml->writeElement('PxPayUserId', substr($this->userID, 0, 32));
 		$xml->writeElement('PxPayKey', substr($this->userKey, 0, 64));
 		$xml->writeElement('TxnType', substr($this->txnType, 0, 8));
-		$xml->writeElement('AmountInput', number_format($this->amount, 2, '.', ','));
+		$xml->writeElement('AmountInput', number_format($this->amount, 2, '.', ''));
 		$xml->writeElement('CurrencyInput', substr($this->currency, 0, 4));
 		$xml->writeElement('MerchantReference', substr($this->invoiceReference, 0, 64));
 		$xml->writeElement('TxnData1', substr($this->option1, 0, 255));

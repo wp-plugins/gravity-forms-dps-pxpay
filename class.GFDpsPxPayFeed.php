@@ -52,7 +52,7 @@ class GFDpsPxPayFeed {
 			$this->loadFromPost($post);
 		}
 		else {
-			throw new GFDpsPxPayException(__CLASS__ . ": can't load feed: $DistributorID");
+			throw new GFDpsPxPayException(__CLASS__ . ": can't load feed: $ID");
 		}
 	}
 

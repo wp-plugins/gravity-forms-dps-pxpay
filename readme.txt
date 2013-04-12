@@ -7,7 +7,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: gravityforms, gravity forms, gravity, dps, payment express, pxpay, donation, donations, payment, payment gateway, ecommerce, credit cards, new zealand, australia
 Requires at least: 3.3
 Tested up to: 3.5.1
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -115,6 +115,10 @@ The plugin will run in shared hosting environments, but requires PHP 5 with the 
 
 == Changelog ==
 
+= 1.0.1 [2013-04-12] =
+* fixed: amounts greater than 999.99 work correctly (was getting an IU error on Payment Express screen)
+* fixed: don't squabble with other plugins for custom merge tags of same name
+* fixed: don't stomp on admin page icons for other Gravity Forms plugins
+
 = 1.0.0 [2013-01-25] =
 * initial public release
-

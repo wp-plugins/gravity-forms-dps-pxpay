@@ -8,7 +8,6 @@ class GFDpsPxPayAdmin {
 	const MENU_PAGE = 'gfdpspxpay';					// slug for menu page(s)
 
 	protected $plugin;
-	protected $adminPage = false;
 
 	/**
 	* @param GFDpsPxPayPlugin $plugin
@@ -18,11 +17,6 @@ class GFDpsPxPayAdmin {
 
 		// handle admin init action
 		add_action('admin_init', array($this, 'actionAdminInit'));
-
-		// need this for custom handling of metaboxes when edit (for some reason, $typenow is unset at admin_init when edit!)
-		if (!empty($_REQUEST['action'])) {
-			add_action('admin_action_' . $_REQUEST['action'], array($this, 'actionAdminAction'));
-		}
 
 		// add GravityForms hooks
 		add_filter("gform_addon_navigation", array($this, 'gformAddonNavigation'));
@@ -59,31 +53,15 @@ class GFDpsPxPayAdmin {
 	public function actionAdminInit() {
 		global $typenow;
 
-		if ($typenow) {
-			$this->loadAdminPage($typenow);
+		// when editing pages, $typenow isn't set until later!
+		// kludge thanks to WooCommerce :)
+		if (empty($typenow) && !empty($_GET['post'])) {
+			$post = get_post($_GET['post']);
+			$typenow = $post->post_type;
 		}
-	}
 
-	/**
-	* for cases when typenow isn't set on admin init, catch it later
-	*/
-	public function actionAdminAction() {
-		global $typenow;
-
-		if ($typenow) {
-			$this->loadAdminPage($typenow);
-		}
-	}
-
-	/**
-	* load admin page for custom post type
-	* @param string $typenow post type
-	*/
-	protected function loadAdminPage($typenow) {
-		if (!$this->adminPage) {
-			if ($typenow == GFDPSPXPAY_TYPE_FEED) {
-				$this->adminPage = new GFDpsPxPayFeedAdmin($this->plugin);
-			}
+		if ($typenow && $typenow == GFDPSPXPAY_TYPE_FEED) {
+			new GFDpsPxPayFeedAdmin($this->plugin);
 		}
 	}
 
@@ -99,7 +77,7 @@ class GFDpsPxPayAdmin {
 	*/
 	public function actionAdminNotices() {
 		if (!self::isGfActive()) {
-			$this->plugin->showError('GravityForms DPS PxPay plugin requires <a href="http://www.gravityforms.com/">GravityForms</a> plugin to be installed and activated.');
+			$this->plugin->showError('Gravity Forms DPS PxPay requires <a href="http://www.gravityforms.com/">Gravity Forms</a> to be installed and activated.');
 		}
 	}
 
