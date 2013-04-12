@@ -83,7 +83,7 @@ Use your Gravity Forms Settings page to select the currency type to pass to DPS.
 
 = Purchase or Auth? =
 
-DPS PxPay supports two tranasction types - Purchase and Auth. The Gravity Forms DPS PxPay plugin only supports the Purchase transaction type
+DPS PxPay supports two transaction types - Purchase and Auth. The Gravity Forms DPS PxPay plugin only supports the Purchase transaction type
 
 = Can I do recurring payments? =
 
