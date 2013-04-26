@@ -7,7 +7,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: gravityforms, gravity forms, gravity, dps, payment express, pxpay, donation, donations, payment, payment gateway, ecommerce, credit cards, new zealand, australia
 Requires at least: 3.3
 Tested up to: 3.5.1
-Stable tag: 1.0.1
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,11 +51,11 @@ Thanks for sponsoring new features on Gravity Forms DPS PxPay!
 
 = What is DPS PxPay? =
 
-DPS PxPay is a hosted Credit Card payment gateway. DPS is one of Australasia's leading online payments solutions providers.
+DPS PxPay is a hosted Credit Card payment gateway. DPS Payment Express is one of Australasia's leading online payments solutions providers.
 
 = Will this plugin work without installing Gravity Forms? =
 
-No. This plugin adds an DPS PxPay payment gateway to Gravity Forms so that you can add online payments to your forms. You must purchase and install a copy of the [Gravity Forms](http://www.gravityforms.com/) plugin too.
+No. This plugin adds a DPS Payment Express PxPay payment gateway to Gravity Forms so that you can add online payments to your forms. You must purchase and install a copy of the [Gravity Forms](http://www.gravityforms.com/) plugin too.
 
 = What Gravity Forms license do I need? =
 
@@ -76,6 +76,8 @@ Successful transaction details including the DPS PxPay transaction number and ba
 = How do I add a confirmed payment amount and transaction number to my Gravity Forms admin or customer email? =
 
 Browse to your Gravity Form, select [Notifications](http://www.gravityhelp.com/documentation/page/Notifications) and use the Insert Merge Tag dropdown (Payment Amount, Transaction Number and Auth Code will appear under Custom at the very bottom of the dropdown list).
+
+NB: these custom merge tags will only work if notifications are only sent after payment is accepted.
 
 = How do I change my currency type? =
 
@@ -114,6 +116,12 @@ The plugin will run in shared hosting environments, but requires PHP 5 with the 
 6. A successful entry in Gravity Forms admin
 
 == Changelog ==
+
+= 1.1.0 [2013-04-26] =
+* fixed: Gravity Forms 1.7 compatibility fixes for deferring the new multiple notifications
+* fixed: WordPress SEO setting "Redirect ugly URL's to clean permalinks" breaks many things, including this plugin (but not any more)
+* fixed: nonce (number once) handling in settings admin
+* added: entries links on feeds admin
 
 = 1.0.1 [2013-04-12] =
 * fixed: amounts greater than 999.99 work correctly (was getting an IU error on Payment Express screen)

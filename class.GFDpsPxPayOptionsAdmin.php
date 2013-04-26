@@ -112,6 +112,10 @@ class GFDpsPxPayOptionsAdmin {
 
 		$this->frm = new GFDpsPxPayOptionsForm();
 		if ($this->frm->isFormPost()) {
+
+			if (!wp_verify_nonce($_POST[$this->menuPage . '_wpnonce'], 'save'))
+				die('Security exception');
+
 			$errmsg = $this->frm->validate();
 			if (empty($errmsg)) {
 				$this->plugin->options['userID'] = $this->frm->userID;
@@ -188,7 +192,7 @@ class GFDpsPxPayOptionsAdmin {
 			<p class="submit">
 			<input type="submit" name="Submit" class="button-primary" value="Save Changes" />
 			<input type="hidden" name="action" value="save" />
-			<?php wp_nonce_field($this->menuPage); ?>
+			<?php wp_nonce_field('save', $this->menuPage . '_wpnonce'); ?>
 			</p>
 		</form>
 

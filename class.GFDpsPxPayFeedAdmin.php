@@ -13,15 +13,28 @@ class GFDpsPxPayFeedAdmin {
 	public function __construct($plugin) {
 		$this->plugin = $plugin;
 
+		add_filter('wp_print_scripts', array($this, 'removeScripts'));
 		add_filter('parent_file', array($this, 'filterParentFile'));
+		add_filter('views_edit-'.GFDPSPXPAY_TYPE_FEED, array($this, 'filterViewsEdit'));
 		add_action('add_meta_boxes_'.GFDPSPXPAY_TYPE_FEED, array($this, 'actionAddMetaBoxes'));
 		add_action('save_post', array($this, 'saveCustomFields'), 10, 2);
 		add_filter('manage_'.GFDPSPXPAY_TYPE_FEED.'_posts_columns', array($this, 'filterManageColumns'));
-		add_filter('post_row_actions', array($this, 'filterPostRowActions'));
+		add_filter('post_row_actions', array($this, 'filterPostRowActions'), 10, 2);
 		add_filter('wp_insert_post_data', array($this, 'filterInsertPostData'), 10, 2);
 		add_filter('post_updated_messages', array($this, 'filterPostUpdatedMessages'));
 
 		wp_enqueue_script('gfdpspxpay-feed-admin', $this->plugin->urlBase . 'js/feed-admin.min.js', array('jquery'), GFDPSPXPAY_PLUGIN_VERSION, true);
+
+		//~ require_once(GFCommon::get_base_path() . '/tooltips.php');
+	}
+
+	/**
+	* remove some scripts we don't want loaded
+	*/
+	public function removeScripts() {
+		// stop WordPress SEO breaking our tooltips!
+		wp_dequeue_script('wp-seo-metabox');
+		wp_dequeue_script('jquery-qtip');
 	}
 
 	/**
@@ -39,6 +52,18 @@ class GFDpsPxPayFeedAdmin {
 		$submenu_file = 'gfdpspxpay-options';
 
 		return $parent_file;
+	}
+
+	/**
+	* remove views we don't need from post list
+	* @param array $views
+	* @return array
+	*/
+	public function filterViewsEdit($views) {
+		unset($views['publish']);
+		unset($views['draft']);
+
+		return $views;
 	}
 
 	/**
@@ -145,7 +170,7 @@ class GFDpsPxPayFeedAdmin {
 			foreach ($forms as $form) {
 				// only if form for this feed, or without a feed
 				if ($form->id == $feed->FormID || !isset($feedMap[$form->id])) {
-					$selected = selected($feed->FormID, $form->id);
+					$selected = selected($feed->FormID, $form->id, false);
 					echo "<option value='{$form->id}' $selected>", htmlspecialchars($form->title), "</option>\n";
 				}
 			}
@@ -197,7 +222,7 @@ class GFDpsPxPayFeedAdmin {
 	* @param array $metabox has metabox id, title, callback, and args elements.
 	*/
 	public function metaboxFields($post, $metabox) {
-		wp_nonce_field(GFDPSPXPAY_TYPE_FEED.'_save', GFDPSPXPAY_TYPE_FEED.'_wpnonce', false, true);
+		wp_nonce_field('save', GFDPSPXPAY_TYPE_FEED.'_wpnonce', false);
 
 		$feed = $metabox['args']['feed'];
 		$MerchantReference = htmlspecialchars($feed->MerchantReference);
@@ -315,7 +340,7 @@ class GFDpsPxPayFeedAdmin {
 			);
 
 			if (isset($_POST['_gfdpspxpay_form'])) {
-				if (!wp_verify_nonce($_POST[GFDPSPXPAY_TYPE_FEED.'_wpnonce'], GFDPSPXPAY_TYPE_FEED.'_save'))
+				if (!wp_verify_nonce($_POST[GFDPSPXPAY_TYPE_FEED.'_wpnonce'], 'save'))
 					die('Security exception');
 			}
 
@@ -342,10 +367,29 @@ class GFDpsPxPayFeedAdmin {
 	/**
 	* remove unwanted actions from list of feeds
 	* @param array $actions
+	* @param WP_Post $post
 	* @return array
 	*/
-	public function filterPostRowActions($actions) {
+	public function filterPostRowActions($actions, $post) {
 		unset($actions['inline hide-if-no-js']);		// "quick edit"
+
+		// add Entries link
+		if ($post && $post->ID) {
+			try {
+				$feed = new GFDpsPxPayFeed();
+				$feed->loadFromPost($post);
+
+				$delete = array_pop($actions);		// pop the end link, so that we can "insert" ours before it
+
+				$actions['entries'] = sprintf('<a href="%s" title="%s">%s</a>',
+					add_query_arg(array('page' => 'gf_entries', 'id' => $feed->FormID), admin_url('admin.php')), 'View Entries', 'Entries');
+
+				$actions['delete'] = $delete;		// replace the end link
+			}
+			catch (GFDpsPxPayException $e) {
+				// NOP -- we'll have an empty feed
+			}
+		}
 
 		return $actions;
 	}
@@ -433,7 +477,7 @@ class GFDpsPxPayFeedAdmin {
 		$opts = "<option value=''>-- not selected --</option>\n";
 
 		foreach ($fields as $name => $title) {
-			$selected = selected($current, $name);
+			$selected = selected($current, $name, false);
 			$title = htmlspecialchars($title);
 			$opts .= "<option value='$name' $selected>$title</option>\n";
 		}

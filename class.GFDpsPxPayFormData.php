@@ -17,7 +17,6 @@ class GFDpsPxPayFormData {
 	public $TxnData3;						// optional data #3
 
 	private $isLastPageFlag = FALSE;
-	private $isCcHiddenFlag = FALSE;
 	private $hasPurchaseFieldsFlag = FALSE;
 
 	/**
@@ -186,14 +185,6 @@ class GFDpsPxPayFormData {
 	*/
 	public function isLastPage() {
 		return $this->isLastPageFlag;
-	}
-
-	/**
-	* check whether CC field is hidden (which indicates that payment is being made another way)
-	* @return boolean
-	*/
-	public function isCcHidden() {
-		return $this->isCcHiddenFlag;
 	}
 
 	/**

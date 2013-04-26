@@ -77,8 +77,9 @@ class GFDpsPxPayPlugin {
 		add_filter('gform_validation_message', array($this, "gformValidationMessage"), 10, 2);
 		add_filter('gform_confirmation', array($this, "gformConfirmation"), 1000, 4);
 		add_filter('gform_disable_post_creation', array($this, 'gformDelayPost'), 10, 3);
-		add_filter('gform_disable_user_notification', array($this, 'gformDelayAutoresponder'), 10, 3);
-		add_filter('gform_disable_admin_notification', array($this, 'gformDelayNotification'), 10, 3);
+		add_filter('gform_disable_user_notification', array($this, 'gformDelayUserNotification'), 10, 3);
+		add_filter('gform_disable_admin_notification', array($this, 'gformDelayAdminNotification'), 10, 3);
+		add_filter('gform_disable_notification', array($this, 'gformDelayNotification'), 10, 4);
 		add_filter('gform_custom_merge_tags', array($this, 'gformCustomMergeTags'), 10, 4);
 		add_filter('gform_replace_merge_tags', array($this, 'gformReplaceMergeTags'), 10, 7);
 
@@ -139,13 +140,13 @@ class GFDpsPxPayPlugin {
 	}
 
 	/**
-	* filter whether form triggers autoresponder (yet)
+	* deprecated: filter whether form triggers autoresponder (yet)
 	* @param bool $is_disabled
 	* @param array $form
 	* @param array $lead
 	* @return bool
 	*/
-	public function gformDelayAutoresponder($is_disabled, $form, $lead) {
+	public function gformDelayUserNotification($is_disabled, $form, $lead) {
 		$feed = $this->getFeed($form['id']);
 		if ($feed && $feed->DelayAutorespond) {
 			$is_disabled = true;
@@ -155,16 +156,62 @@ class GFDpsPxPayPlugin {
 	}
 
 	/**
-	* filter whether form triggers admin notification (yet)
+	* deprecated: filter whether form triggers admin notification (yet)
 	* @param bool $is_disabled
 	* @param array $form
 	* @param array $lead
 	* @return bool
 	*/
-	public function gformDelayNotification($is_disabled, $form, $lead) {
+	public function gformDelayAdminNotification($is_disabled, $form, $lead) {
 		$feed = $this->getFeed($form['id']);
 		if ($feed && $feed->DelayNotify) {
 			$is_disabled = true;
+		}
+
+		return $is_disabled;
+	}
+
+	/**
+	* filter whether form triggers admin notification (yet)
+	* @param bool $is_disabled
+	* @param array $notification
+	* @param array $form
+	* @param array $lead
+	* @return bool
+	*/
+	public function gformDelayNotification($is_disabled, $notification, $form, $lead) {
+		$feed = $this->getFeed($form['id']);
+
+		if ($feed) {
+			switch (rgar($notification, 'type')) {
+				// old "user" notification
+				case 'user':
+					if ($feed->DelayAutorespond) {
+						$is_disabled = true;
+					}
+					break;
+
+				// old "admin" notification
+				case 'admin':
+					if ($feed->DelayNotify) {
+						$is_disabled = true;
+					}
+					break;
+
+				// new since 1.7, add any notification you like
+				default:
+					if (trim($notification['to']) == '{admin_email}') {
+						if ($feed->DelayNotify) {
+							$is_disabled = true;
+						}
+					}
+					else {
+						if ($feed->DelayAutorespond) {
+							$is_disabled = true;
+						}
+					}
+					break;
+			}
 		}
 
 		return $is_disabled;
@@ -377,6 +424,12 @@ class GFDpsPxPayPlugin {
 			// make sure we have a match
 			if (wp_hash("form_id={$query['form_id']}&lead_id={$query['lead_id']}") == $query['hash']) {
 
+				// stop WordPress SEO from stripping off our query parameters and redirecting the page
+				global $wpseo_front;
+				if (isset($wpseo_front)) {
+					remove_action('template_redirect', array($wpseo_front, 'clean_permalink'), 1);
+				}
+
 				// load form and lead data
 				$form = GFFormsModel::get_form_meta($query['form_id']);
 				$lead = GFFormsModel::get_lead($query['lead_id']);
@@ -401,12 +454,11 @@ class GFDpsPxPayPlugin {
 					if ($feed->DelayPost) {
 						GFFormsModel::create_post($form, $lead);
 					}
-					if ($feed->DelayNotify) {
-						GFCommon::send_admin_notification($form, $lead);
+
+					if ($feed->DelayNotify || $feed->DelayAutorespond) {
+						$this->sendDeferredNotifications($feed, $form, $lead);
 					}
-					if ($feed->DelayAutorespond) {
-						GFCommon::send_user_notification($form, $lead);
-					}
+
 					GFFormsModel::update_lead_property($lead['id'], 'is_fulfilled', true);
 				}
 
@@ -414,6 +466,60 @@ class GFDpsPxPayPlugin {
 				if (is_array($confirmation) && isset($confirmation['redirect'])) {
 					header('Location: ' . $confirmation['redirect']);
 					exit;
+				}
+			}
+		}
+	}
+
+	/**
+	* send deferred notifications, handling pre- and post-1.7.0 worlds
+	* @param array $feed
+	* @param array $form the form submission data
+	* @param array $lead the form entry
+	*/
+	protected function sendDeferredNotifications($feed, $form, $lead) {
+		$gfversion = GFCommon::get_version_info();
+
+		if (version_compare($gfversion['version'], '1.7.0', '<')) {
+			// pre-1.7.0 notifications
+			if ($feed->DelayNotify) {
+				GFCommon::send_admin_notification($form, $lead);
+			}
+			if ($feed->DelayAutorespond) {
+				GFCommon::send_user_notification($form, $lead);
+			}
+		}
+		else {
+			$notifications = GFCommon::get_notifications_to_send("form_submission", $form, $lead);
+			foreach ($notifications as $notification) {
+				switch (rgar($notification, 'type')) {
+					// old "user" notification
+					case 'user':
+						if ($feed->DelayAutorespond) {
+							GFCommon::send_notification($notification, $form, $lead);
+						}
+						break;
+
+					// old "admin" notification
+					case 'admin':
+						if ($feed->DelayNotify) {
+							GFCommon::send_notification($notification, $form, $lead);
+						}
+						break;
+
+					// new since 1.7, add any notification you like
+					default:
+						if (trim($notification['to']) == '{admin_email}') {
+							if ($feed->DelayNotify) {
+								GFCommon::send_notification($notification, $form, $lead);
+							}
+						}
+						else {
+							if ($feed->DelayAutorespond) {
+								GFCommon::send_notification($notification, $form, $lead);
+							}
+						}
+						break;
 				}
 			}
 		}
