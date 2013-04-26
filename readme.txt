@@ -130,3 +130,4 @@ The plugin will run in shared hosting environments, but requires PHP 5 with the 
 
 = 1.0.0 [2013-01-25] =
 * initial public release
+
