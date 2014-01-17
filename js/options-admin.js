@@ -1,13 +1,14 @@
 // Gravity Forms DPS PxPay options admin script
 
 jQuery(function($) {
+	"use strict";
 
 	/**
 	* check whether both the sandbox (test) mode and Stored Payments are selected,
 	* show warning message if they are
 	*/
 	function checkSandbox() {
-		var	useTest = ($("input[name='useTest']:checked").val() == "Y");
+		var	useTest = ($("input[name='gfdpspxpay_plugin[useTest]']:checked").val() == "1");
 
 		if (useTest) {
 			$(".gfdpspxpay-opt-admin-test").fadeIn();
@@ -17,7 +18,7 @@ jQuery(function($) {
 		}
 	}
 
-	$("input[name='useTest']").change(checkSandbox);
+	$("input[name='gfdpspxpay_plugin[useTest]']").change(checkSandbox);
 
 	checkSandbox();
 

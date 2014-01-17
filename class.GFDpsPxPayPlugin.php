@@ -51,7 +51,7 @@ class GFDpsPxPayPlugin {
 	* initialise plug-in options, handling undefined options by setting defaults
 	*/
 	private function initOptions() {
-		static $defaults = array (
+		$defaults = array (
 			'userID' => '',
 			'userKey' => '',
 			'testID' => '',
@@ -286,8 +286,17 @@ class GFDpsPxPayPlugin {
 			return $confirmation;
 		}
 
-		// record payment gateway
+		// generate a unique transactiond ID to avoid collisions, e.g. between different installations using the same PxPay account
+		// use last three characters of entry ID as prefix, to avoid collisions with entries created at same microsecond
+		// uniqid() generates 13-character string, plus 3 characters from entry ID = 16 characters which is max for field
+		$transactionID = uniqid(substr($entry['id'], -3));
+
+		// allow plugins/themes to modify transaction ID; NB: must remain unique for PxPay account!
+		$transactionID = apply_filters('gfdpspxpay_invoice_trans_number', $transactionID, $form);
+
+		// record payment gateway and generated transaction number, for later reference
 		gform_update_meta($entry['id'], 'payment_gateway', 'gfdpspxpay');
+		gform_update_meta($entry['id'], 'gfdpspxpay_txn_id', $transactionID);
 
 		$formData = $this->getFormData($form);
 
@@ -297,15 +306,22 @@ class GFDpsPxPayPlugin {
 		$paymentReq->txnType = 'Purchase';
 		$paymentReq->amount = $formData->total;
 		$paymentReq->currency = GFCommon::get_currency();
-		$paymentReq->transactionNumber = $entry['id'];
+		$paymentReq->transactionNumber = $transactionID;
 		$paymentReq->invoiceReference = $formData->MerchantReference;
 		$paymentReq->option1 = $formData->TxnData1;
 		$paymentReq->option2 = $formData->TxnData2;
 		$paymentReq->option3 = $formData->TxnData3;
 		$paymentReq->invoiceDescription = $feed->Opt;
 		$paymentReq->emailAddress = $formData->EmailAddress;
-		$paymentReq->urlSuccess = site_url(GFDPSPXPAY_RETURN);
-		$paymentReq->urlFail = site_url(GFDPSPXPAY_RETURN);			// NB: redirection will happen after transaction status is updated
+		$paymentReq->urlSuccess = home_url(GFDPSPXPAY_RETURN);
+		$paymentReq->urlFail = home_url(GFDPSPXPAY_RETURN);			// NB: redirection will happen after transaction status is updated
+
+		// allow plugins/themes to modify invoice description and reference, and set option fields
+		$paymentReq->invoiceDescription = apply_filters('gfdpspxpay_invoice_desc', $paymentReq->invoiceDescription, $form);
+		$paymentReq->invoiceReference = apply_filters('gfdpspxpay_invoice_ref', $paymentReq->invoiceReference, $form);
+		$paymentReq->option1 = apply_filters('gfdpspxpay_invoice_txndata1', $paymentReq->option1, $form);
+		$paymentReq->option2 = apply_filters('gfdpspxpay_invoice_txndata2', $paymentReq->option2, $form);
+		$paymentReq->option3 = apply_filters('gfdpspxpay_invoice_txndata3', $paymentReq->option3, $form);
 
 //~ error_log(__METHOD__ . "\n" . print_r($paymentReq,1));
 //~ error_log(__METHOD__ . "\n" . $paymentReq->getPaymentXML());
@@ -364,7 +380,11 @@ class GFDpsPxPayPlugin {
 //~ error_log(__METHOD__ . "\n" . print_r($response,1));
 
 				if ($response->isValid) {
-					$lead = GFFormsModel::get_lead($response->transactionNumber);
+					global $wpdb;
+					$sql = "select lead_id from {$wpdb->prefix}rg_lead_meta where meta_key='gfdpspxpay_txn_id' and meta_value = %s";
+					$lead_id = $wpdb->get_var($wpdb->prepare($sql, $response->transactionNumber));
+
+					$lead = GFFormsModel::get_lead($lead_id);
 					$form = GFFormsModel::get_form_meta($lead['form_id']);
 
 					// update lead entry, with success/fail details
@@ -478,9 +498,7 @@ class GFDpsPxPayPlugin {
 	* @param array $lead the form entry
 	*/
 	protected function sendDeferredNotifications($feed, $form, $lead) {
-		$gfversion = GFCommon::get_version_info();
-
-		if (version_compare($gfversion['version'], '1.7.0', '<')) {
+		if (self::versionCompareGF('1.7.0', '<')) {
 			// pre-1.7.0 notifications
 			if ($feed->DelayNotify) {
 				GFCommon::send_admin_notification($form, $lead);
@@ -538,6 +556,7 @@ class GFDpsPxPayPlugin {
 			$merge_tags[] = array('label' => 'Transaction ID', 'tag' => '{transaction_id}');
 			$merge_tags[] = array('label' => 'Auth Code', 'tag' => '{authcode}');
 			$merge_tags[] = array('label' => 'Payment Amount', 'tag' => '{payment_amount}');
+			$merge_tags[] = array('label' => 'Payment Status', 'tag' => '{payment_status}');
 		}
 
 		return $merge_tags;
@@ -561,11 +580,13 @@ class GFDpsPxPayPlugin {
 
 			$tags = array (
 				'{transaction_id}',
+				'{payment_status}',
 				'{payment_amount}',
 				'{authcode}',
 			);
 			$values = array (
 				isset($lead['transaction_id']) ? $lead['transaction_id'] : '',
+				isset($lead['payment_status']) ? $lead['payment_status'] : '',
 				isset($lead['payment_amount']) ? $lead['payment_amount'] : '',
 				!empty($authCode) ? $authCode : '',
 			);
@@ -644,7 +665,7 @@ class GFDpsPxPayPlugin {
 	public static function curlSendRequest($url, $data, $sslVerifyPeer = true) {
 		// send data via HTTPS and receive response
 		$response = wp_remote_post($url, array(
-			'user-agent' => GFDPSPXPAY_CURL_USER_AGENT,
+			'user-agent' => 'Gravity Forms DPS PxPay',
 			'sslverify' => $sslVerifyPeer,
 			'timeout' => 60,
 			'headers' => array('Content-Type' => 'text/xml; charset=utf-8'),
@@ -658,6 +679,20 @@ class GFDpsPxPayPlugin {
 		}
 
 		return $response['body'];
+	}
+
+	/**
+	* compare Gravity Forms version against target
+	* @param string $target
+	* @param string $operator
+	* @return bool
+	*/
+	public static function versionCompareGF($target, $operator) {
+		if (class_exists('GFCommon')) {
+			return version_compare(GFCommon::$version, $target, $operator);
+		}
+
+		return false;
 	}
 
 	/**

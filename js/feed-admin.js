@@ -1,6 +1,7 @@
 /*! script for supporting the Gravity Forms DPS PxPay feed admin page */
 
 jQuery(function ($) {
+	"use strict";
 
 	var formID;			// selected form ID
 
@@ -28,7 +29,7 @@ jQuery(function ($) {
 	$("form#post").submit(function(event) {
 		if ($("select[name='_gfdpspxpay_merchant_ref']", this).val() === '') {
 			event.preventDefault();
-			alert("You must map the Merchant Reference to a field in the form, or payment will not be processed!");
+			window.alert("You must map the Merchant Reference to a field in the form, or payment will not be processed!");
 		}
 	});
 
@@ -38,7 +39,7 @@ jQuery(function ($) {
 	* @param {String} status AJAX status
 	* @param {Object} xhr the AJAX request object
 	*/
-	function checkFeedMapsForm(feedID, status, xhr) {
+	function checkFeedMapsForm(feedID) {
 		var post_id = parseInt($("input[name='post_ID']").val(), 10);
 
 		// make sure we just have the feed ID and no errant whitespace
@@ -46,7 +47,7 @@ jQuery(function ($) {
 
 		// check for feed mapping that isn't the one being edited
 		if (feedID && feedID != post_id) {
-			alert("That form already has a feed.");
+			window.alert("That form already has a feed.");
 		}
 
 		else {
@@ -68,7 +69,7 @@ jQuery(function ($) {
 	* @param {String} status AJAX status
 	* @param {Object} xhr the AJAX request object
 	*/
-	function loadFieldMappingOptions(options, status, xhr) {
+	function loadFieldMappingOptions(options) {
 		$(".gfdpspxpay-feed-fields select").each(function() {
 			$(this).html(options);
 		});

@@ -2,12 +2,12 @@
 Contributors: webaware, IstanbulMMV
 Plugin Name: Gravity Forms DPS PxPay
 Plugin URI: http://snippets.webaware.com.au/wordpress-plugins/gravityforms-dps-pxpay/
-Author URI: http://www.webaware.com.au/
+Author URI: http://webaware.com.au/
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=C4P55EH25BGTL
 Tags: gravityforms, gravity forms, gravity, dps, payment express, pxpay, donation, donations, payment, payment gateway, ecommerce, credit cards, new zealand, australia
-Requires at least: 3.3
-Tested up to: 3.5.1
-Stable tag: 1.1.0
+Requires at least: 3.7.1
+Tested up to: 3.8
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -28,6 +28,17 @@ Gravity Forms DPS PxPay adds a credit card payment gateway for [DPS PxPay](http:
 * creation of this plugin was generously sponsored by [IstanbulMMV](http://profiles.wordpress.org/IstanbulMMV/profile/)
 
 Thanks for sponsoring new features on Gravity Forms DPS PxPay!
+
+= Filter hooks =
+
+Developers can use these filter hooks to modify some eWAY invoice properties. Each filter receives a string for the field value, and the Gravity Forms form array.
+
+* `gfdpspxpay_invoice_desc` for modifying the invoice description
+* `gfdpspxpay_invoice_ref` for modifying the invoice reference
+* `gfdpspxpay_invoice_trans_number` for modifying the invoice transaction reference; NB: must be unique for PxPay account!
+* `gfdpspxpay_invoice_txndata1` for setting the TxnData1 field
+* `gfdpspxpay_invoice_txndata2` for setting the TxnData2 field
+* `gfdpspxpay_invoice_txndata3` for setting the TxnData3 field
 
 = Requirements: =
 
@@ -63,7 +74,7 @@ Any Gravity Forms license will do. You can use this plugin with the Personal, Bu
 
 = What is the difference between Normal and Testing (Sandbox) mode? =
 
-Gravity Forms DPS Pxpay enables you to store two pairs of User ID and User Key credentials. When you first signup for a PxPay account with DPS you will likely be issued development or testing credentials. Later, when you want to go live with your site, you will need to request a new User ID and User Key from DPS. Sandbox mode enables you to switch between your live and test credentials. If you only have testing credentials, both your User ID and Test ID and User Key and Test Key should be identical. In this instance, Sandbox mode can be switched either On or Off.
+Gravity Forms DPS PxPay enables you to store two pairs of User ID and User Key credentials. When you first signup for a PxPay account with DPS you will likely be issued development or testing credentials. Later, when you want to go live with your site, you will need to request a new User ID and User Key from DPS. Sandbox mode enables you to switch between your live and test credentials. If you only have testing credentials, both your User ID and Test ID and User Key and Test Key should be identical. In this instance, Sandbox mode can be switched either On or Off.
 
 =  Where will the customer be directed after they complete their DPS Credit Card transaction? =
 
@@ -116,6 +127,15 @@ The plugin will run in shared hosting environments, but requires PHP 5 with the 
 6. A successful entry in Gravity Forms admin
 
 == Changelog ==
+
+= 1.2.0 [2014-01-17] =
+* fixed: transaction ID was not unique between installations with same account
+* fixed: settings wouldn't save in WordPress multisite installations
+* fixed: Get Help link to support forum
+* added: filters for altering PxPay transaction properties
+* added: custom merge field for payment status
+* changed: DPS PxPay settings page is now a Gravity Forms settings subpage, like other addons
+* changed: some code refactoring for maintenance / compatibility
 
 = 1.1.0 [2013-04-26] =
 * fixed: Gravity Forms 1.7 compatibility fixes for deferring the new multiple notifications

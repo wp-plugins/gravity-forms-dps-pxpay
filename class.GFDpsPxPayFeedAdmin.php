@@ -49,7 +49,7 @@ class GFDpsPxPayFeedAdmin {
 		$parent_file = 'gf_edit_forms';
 
 		// set submenu by side effect
-		$submenu_file = 'gfdpspxpay-options';
+		$submenu_file = 'gfdpspxpay-feeds';
 
 		return $parent_file;
 	}
