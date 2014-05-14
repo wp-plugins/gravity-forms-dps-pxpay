@@ -23,9 +23,9 @@ class GFDpsPxPayFeedAdmin {
 		add_filter('wp_insert_post_data', array($this, 'filterInsertPostData'), 10, 2);
 		add_filter('post_updated_messages', array($this, 'filterPostUpdatedMessages'));
 
-		wp_enqueue_script('gfdpspxpay-feed-admin', $this->plugin->urlBase . 'js/feed-admin.min.js', array('jquery'), GFDPSPXPAY_PLUGIN_VERSION, true);
-
-		//~ require_once(GFCommon::get_base_path() . '/tooltips.php');
+		$min = defined('SCRIPT_DEBUG') && SCRIPT_DEBUG ? '' : '.min';
+		$ver = defined('SCRIPT_DEBUG') && SCRIPT_DEBUG ? time() : GFDPSPXPAY_PLUGIN_VERSION;
+		wp_enqueue_script('gfdpspxpay-feed-admin', "{$this->plugin->urlBase}js/feed-admin$min.js", array('jquery'), $ver, true);
 	}
 
 	/**
@@ -120,6 +120,7 @@ class GFDpsPxPayFeedAdmin {
 
 		<div style="display:none;">
 		<?php submit_button( __( 'Save' ), 'button', 'save' ); ?>
+		<input type="hidden" name="post_status" value="publish" />
 		</div>
 
 		<div id="major-publishing-actions">
@@ -207,11 +208,11 @@ class GFDpsPxPayFeedAdmin {
 		$feed = $metabox['args']['feed'];
 		?>
 		<p><label><input type="checkbox" name="_gfdpspxpay_delay_notify" value="1" <?php checked($feed->DelayNotify); ?> />
-		 Send admin notification only when payment is received</label></p>
+		 Send admin notification only when payment is processed</label></p>
 		<p><label><input type="checkbox" name="_gfdpspxpay_delay_autorespond" value="1" <?php checked($feed->DelayAutorespond); ?> />
-		 Send user notification only when payment is received</label></p>
+		 Send user notification only when payment is processed</label></p>
 		<p><label><input type="checkbox" name="_gfdpspxpay_delay_post" value="1" <?php checked($feed->DelayPost); ?> />
-		 Create post only when payment is received</label></p>
+		 Create post only when payment is processed</label></p>
 
 		<?php
 	}

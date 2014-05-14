@@ -63,7 +63,7 @@ class GFDpsPxPayFormData {
 
 				default:
 					// check for product field
-					if (GFCommon::is_product_field($field['type']) || $field['type'] == 'donation') {
+					if (in_array($field['type'], array('option', 'donation', 'product', 'total', 'shipping', 'calculation'))) {
 						$this->amount += self::getProductPrice($form, $field);
 						$this->hasPurchaseFieldsFlag = true;
 					}
@@ -104,8 +104,9 @@ class GFDpsPxPayFormData {
 		// TODO: shipping?
 
 		// if form didn't pass the total, pick it up from calculated amount
-		if ($this->total == 0)
+		if ($this->total == 0) {
 			$this->total = $this->amount;
+		}
 	}
 
 	/**
@@ -120,13 +121,24 @@ class GFDpsPxPayFormData {
 		if (!GFFormsModel::is_field_hidden($form, $field, array())) {
 			$lead_value = rgpost("input_{$id}");
 
-			$qty_field = GFCommon::get_product_fields_by_type($form, array('quantity'), $id);
-			$qty = sizeof($qty_field) > 0 ? rgpost("input_{$qty_field[0]['id']}") : 1;
+			// look for a quantity field for product
+			$qty_fields = GFCommon::get_product_fields_by_type($form, array('quantity'), $id);
+			if (empty($qty_fields)) {
+				$qty_field = false;
+				$qty = 1;
+			}
+			else {
+				$qty_field = $qty_fields[0];
+				$qty = (float) rgpost("input_{$qty_field['id']}");
+			}
 
 			switch ($field["inputType"]) {
 				case 'singleproduct':
 					$price = GFCommon::to_number(rgpost("input_{$id}_2"));
-					$qty = GFCommon::to_number(rgpost("input_{$id}_3"));
+					if (!$qty_field) {
+						// no quantity field, pick it up from input
+						$qty = (float) GFCommon::to_number(rgpost("input_{$id}_3"));
+					}
 					$isProduct = true;
 					break;
 
@@ -171,9 +183,10 @@ class GFDpsPxPayFormData {
 						}
 					}
 				}
+
+				$price *= $qty;
 			}
 
-			$price *= $qty;
 		}
 
 		return $price;

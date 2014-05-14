@@ -77,7 +77,8 @@ class GFDpsPxPayAdmin {
 	* enqueue our admin stylesheet
 	*/
 	public function enqueueScripts() {
-		wp_enqueue_style('gfdpspxpay-admin', "{$this->plugin->urlBase}css/admin.css", false, GFDPSPXPAY_PLUGIN_VERSION);
+		$ver = defined('SCRIPT_DEBUG') && SCRIPT_DEBUG ? time() : GFDPSPXPAY_PLUGIN_VERSION;
+		wp_enqueue_style('gfdpspxpay-admin', "{$this->plugin->urlBase}css/admin.css", false, $ver);
 	}
 
 	/**
@@ -157,7 +158,8 @@ class GFDpsPxPayAdmin {
 	*/
 	public function optionsAdmin() {
 		$min = defined('SCRIPT_DEBUG') && SCRIPT_DEBUG ? '' : '.min';
-		wp_enqueue_script('gfdpspxpay-options', "{$this->plugin->urlBase}js/options-admin$min.js", array('jquery'), GFDPSPXPAY_PLUGIN_VERSION, true);
+		$ver = defined('SCRIPT_DEBUG') && SCRIPT_DEBUG ? time() : GFDPSPXPAY_PLUGIN_VERSION;
+		wp_enqueue_script('gfdpspxpay-options', "{$this->plugin->urlBase}js/options-admin$min.js", array('jquery'), $ver, true);
 
 		$options = $this->plugin->options;
 		require GFDPSPXPAY_PLUGIN_ROOT . 'views/admin-settings.php';

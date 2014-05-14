@@ -6,8 +6,8 @@ Author URI: http://webaware.com.au/
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=C4P55EH25BGTL
 Tags: gravityforms, gravity forms, gravity, dps, payment express, pxpay, donation, donations, payment, payment gateway, ecommerce, credit cards, new zealand, australia
 Requires at least: 3.7.1
-Tested up to: 3.9
-Stable tag: 1.2.0
+Tested up to: 3.9.1
+Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -127,6 +127,10 @@ The plugin will run in shared hosting environments, but requires PHP 5 with the 
 6. A successful entry in Gravity Forms admin
 
 == Changelog ==
+
+= 1.2.1 [2014-05-14] =
+* fixed: products with separate quantity fields fail
+* fixed: undefined index 'post_status' when saving feed
 
 = 1.2.0 [2014-01-17] =
 * fixed: transaction ID was not unique between installations with same account
