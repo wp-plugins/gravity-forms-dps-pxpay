@@ -73,9 +73,9 @@ class GFDpsPxPayPlugin {
 	*/
 	public function init() {
 		// hook into Gravity Forms
-		add_filter('gform_validation', array($this, "gformValidation"));
-		add_filter('gform_validation_message', array($this, "gformValidationMessage"), 10, 2);
-		add_filter('gform_confirmation', array($this, "gformConfirmation"), 1000, 4);
+		add_filter('gform_validation', array($this, 'gformValidation'));
+		add_filter('gform_validation_message', array($this, 'gformValidationMessage'), 10, 2);
+		add_filter('gform_confirmation', array($this, 'gformConfirmation'), 1000, 4);
 		add_filter('gform_disable_post_creation', array($this, 'gformDelayPost'), 10, 3);
 		add_filter('gform_disable_user_notification', array($this, 'gformDelayUserNotification'), 10, 3);
 		add_filter('gform_disable_admin_notification', array($this, 'gformDelayAdminNotification'), 10, 3);
@@ -99,16 +99,16 @@ class GFDpsPxPayPlugin {
 		// register the post type
 		register_post_type(GFDPSPXPAY_TYPE_FEED, array(
 			'labels' => array (
-				'name' => __( 'DPS PxPay Feeds' ),
-				'singular_name' => __( 'DPS PxPay Feed' ),
-				'add_new_item' => __( 'Add New DPS PxPay Feed' ),
-				'edit_item' => __( 'Edit DPS PxPay Feed' ),
-				'new_item' => __( 'New DPS PxPay Feed' ),
-				'view_item' => __( 'View DPS PxPay Feed' ),
-				'search_items' => __( 'Search DPS PxPay Feeds' ),
-				'not_found' => __( 'No DPS PxPay feeds found' ),
-				'not_found_in_trash' => __( 'No DPS PxPay feeds found in Trash' ),
-				'parent_item_colon' => __( 'Parent DPS PxPay feed' ),
+				'name' => 'DPS PxPay Feeds',
+				'singular_name' => 'DPS PxPay Feed',
+				'add_new_item' => 'Add New DPS PxPay Feed',
+				'edit_item' => 'Edit DPS PxPay Feed',
+				'new_item' => 'New DPS PxPay Feed',
+				'view_item' => 'View DPS PxPay Feed',
+				'search_items' => 'Search DPS PxPay Feeds',
+				'not_found' => 'No DPS PxPay feeds found',
+				'not_found_in_trash' => 'No DPS PxPay feeds found in Trash',
+				'parent_item_colon' => 'Parent DPS PxPay feed',
 			),
 			'description' => 'DPS PxPay Feeds, as a custom post type',
 			'public' => false,
@@ -342,7 +342,7 @@ class GFDpsPxPayPlugin {
 		catch (GFDpsPxPayException $e) {
 			// TODO: what now?
 			GFFormsModel::update_lead_property($entry['id'], 'payment_status', 'Failed');
-			echo nl2br(htmlspecialchars($e->getMessage()));
+			echo nl2br(esc_html($e->getMessage()));
 			exit;
 		}
 
@@ -393,8 +393,15 @@ class GFDpsPxPayPlugin {
 						$lead['payment_date'] = date('Y-m-d H:i:s');
 						$lead['payment_amount'] = $response->amount;
 						$lead['transaction_id'] = $response->txnRef;
-						$lead['transaction_type'] = 1;
-						GFFormsModel::update_lead($lead);
+						$lead['transaction_type'] = 1;	// order
+
+						// update the entry
+						if (class_exists('GFAPI')) {
+							GFAPI::update_entry($lead);
+						}
+						else {
+							GFFormsModel::update_lead($lead);
+						}
 
 						// record bank authorisation code
 						gform_update_meta($lead['id'], 'authcode', $response->authCode);
@@ -405,7 +412,16 @@ class GFDpsPxPayPlugin {
 					}
 					else {
 						$lead['payment_status'] = 'Failed';
-						GFFormsModel::update_lead($lead);
+						$lead['transaction_id'] = $response->txnRef;
+						$lead['transaction_type'] = 1;	// order
+
+						// update the entry
+						if (class_exists('GFAPI')) {
+							GFAPI::update_entry($lead);
+						}
+						else {
+							GFFormsModel::update_lead($lead);
+						}
 
 						// redirect to failure page if set, otherwise fall through to redirect back to confirmation page
 						$feed = $this->getFeed($form['id']);
@@ -424,7 +440,7 @@ class GFDpsPxPayPlugin {
 			}
 			catch (GFDpsPxPayException $e) {
 				// TODO: what now?
-				echo nl2br(htmlspecialchars($e->getMessage()));
+				echo nl2br(esc_html($e->getMessage()));
 				exit;
 			}
 		}
@@ -578,6 +594,9 @@ class GFDpsPxPayPlugin {
 		if ($gateway == 'gfdpspxpay') {
 			$authCode = gform_get_meta($lead['id'], 'authcode');
 
+			// format payment amount as currency
+			$payment_amount = isset($lead['payment_amount']) ? GFCommon::format_number($lead['payment_amount'], 'currency') : '';
+
 			$tags = array (
 				'{transaction_id}',
 				'{payment_status}',
@@ -587,7 +606,7 @@ class GFDpsPxPayPlugin {
 			$values = array (
 				isset($lead['transaction_id']) ? $lead['transaction_id'] : '',
 				isset($lead['payment_status']) ? $lead['payment_status'] : '',
-				isset($lead['payment_amount']) ? $lead['payment_amount'] : '',
+				$payment_amount,
 				!empty($authCode) ? $authCode : '',
 			);
 
@@ -665,7 +684,7 @@ class GFDpsPxPayPlugin {
 	public static function curlSendRequest($url, $data, $sslVerifyPeer = true) {
 		// send data via HTTPS and receive response
 		$response = wp_remote_post($url, array(
-			'user-agent' => 'Gravity Forms DPS PxPay',
+			'user-agent' => 'Gravity Forms DPS PxPay ' . GFDPSPXPAY_PLUGIN_VERSION,
 			'sslverify' => $sslVerifyPeer,
 			'timeout' => 60,
 			'headers' => array('Content-Type' => 'text/xml; charset=utf-8'),
@@ -695,19 +714,4 @@ class GFDpsPxPayPlugin {
 		return false;
 	}
 
-	/**
-	* display a message (already HTML-conformant)
-	* @param string $msg HTML-encoded message to display inside a paragraph
-	*/
-	public static function showMessage($msg) {
-		echo "<div class='updated fade'><p><strong>$msg</strong></p></div>\n";
-	}
-
-	/**
-	* display an error message (already HTML-conformant)
-	* @param string $msg HTML-encoded message to display inside a paragraph
-	*/
-	public static function showError($msg) {
-		echo "<div class='error'><p><strong>$msg</strong></p></div>\n";
-	}
 }

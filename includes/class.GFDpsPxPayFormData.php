@@ -6,6 +6,7 @@
 class GFDpsPxPayFormData {
 
 	public $amount = 0;
+	public $shipping = 0;
 	public $total = 0;
 	public $formID = 0;
 
@@ -62,8 +63,13 @@ class GFDpsPxPayFormData {
 					break;
 
 				default:
+					// check for shipping field
+					if ($field['type'] == 'shipping') {
+						$this->shipping += self::getShipping($form, $field);
+						$this->hasPurchaseFieldsFlag = true;
+					}
 					// check for product field
-					if (in_array($field['type'], array('option', 'donation', 'product', 'total', 'shipping', 'calculation'))) {
+					elseif (in_array($field['type'], array('option', 'donation', 'product', 'calculation'))) {
 						$this->amount += self::getProductPrice($form, $field);
 						$this->hasPurchaseFieldsFlag = true;
 					}
@@ -101,11 +107,9 @@ class GFDpsPxPayFormData {
 			}
 		}
 
-		// TODO: shipping?
-
-		// if form didn't pass the total, pick it up from calculated amount
-		if ($this->total == 0) {
-			$this->total = $this->amount;
+		// if form didn't pass the total, use sum of the product and shipping fields
+		if ($this->total === 0) {
+			$this->total = $this->amount + $this->shipping;
 		}
 	}
 
@@ -134,16 +138,12 @@ class GFDpsPxPayFormData {
 
 			switch ($field["inputType"]) {
 				case 'singleproduct':
+				case 'hiddenproduct':
 					$price = GFCommon::to_number(rgpost("input_{$id}_2"));
 					if (!$qty_field) {
 						// no quantity field, pick it up from input
 						$qty = (float) GFCommon::to_number(rgpost("input_{$id}_3"));
 					}
-					$isProduct = true;
-					break;
-
-				case 'hiddenproduct':
-					$price = GFCommon::to_number($field["basePrice"]);
 					$isProduct = true;
 					break;
 
@@ -190,6 +190,28 @@ class GFDpsPxPayFormData {
 		}
 
 		return $price;
+	}
+
+	/**
+	* extract the shipping amount from a shipping field
+	* @return float
+	*/
+	private static function getShipping($form, $field) {
+		$shipping = 0;
+		$id = $field['id'];
+
+		if (!GFFormsModel::is_field_hidden($form, $field, array())) {
+			$value = rgpost("input_{$id}");
+
+			if (!empty($value) && $field["inputType"] != 'singleshipping') {
+				// drop-down list / radio buttons
+				list($name, $value) = rgexplode('|', $value, 2);
+			}
+
+			$shipping = GFCommon::to_number($value);
+		}
+
+		return $shipping;
 	}
 
 	/**

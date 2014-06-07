@@ -1,13 +1,13 @@
 === Gravity Forms DPS PxPay ===
 Contributors: webaware, IstanbulMMV
 Plugin Name: Gravity Forms DPS PxPay
-Plugin URI: http://snippets.webaware.com.au/wordpress-plugins/gravityforms-dps-pxpay/
+Plugin URI: http://shop.webaware.com.au/downloads/gravity-forms-dps-pxpay/
 Author URI: http://webaware.com.au/
-Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=C4P55EH25BGTL
+Donate link: http://shop.webaware.com.au/downloads/gravity-forms-dps-pxpay/
 Tags: gravityforms, gravity forms, gravity, dps, payment express, pxpay, donation, donations, payment, payment gateway, ecommerce, credit cards, new zealand, australia
 Requires at least: 3.7.1
 Tested up to: 3.9.1
-Stable tag: 1.2.1
+Stable tag: 1.3.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -28,17 +28,6 @@ Gravity Forms DPS PxPay adds a credit card payment gateway for [DPS PxPay](http:
 * creation of this plugin was generously sponsored by [IstanbulMMV](http://profiles.wordpress.org/IstanbulMMV/profile/)
 
 Thanks for sponsoring new features on Gravity Forms DPS PxPay!
-
-= Filter hooks =
-
-Developers can use these filter hooks to modify some eWAY invoice properties. Each filter receives a string for the field value, and the Gravity Forms form array.
-
-* `gfdpspxpay_invoice_desc` for modifying the invoice description
-* `gfdpspxpay_invoice_ref` for modifying the invoice reference
-* `gfdpspxpay_invoice_trans_number` for modifying the invoice transaction reference; NB: must be unique for PxPay account!
-* `gfdpspxpay_invoice_txndata1` for setting the TxnData1 field
-* `gfdpspxpay_invoice_txndata2` for setting the TxnData2 field
-* `gfdpspxpay_invoice_txndata3` for setting the TxnData3 field
 
 = Requirements: =
 
@@ -126,7 +115,31 @@ The plugin will run in shared hosting environments, but requires PHP 5 with the 
 5. The sample donation form as it appears on a page
 6. A successful entry in Gravity Forms admin
 
+== Filter hooks ==
+
+Developers can use these filter hooks to modify some eWAY invoice properties. Each filter receives a string for the field value, and the Gravity Forms form array.
+
+* `gfdpspxpay_invoice_desc` for modifying the invoice description
+* `gfdpspxpay_invoice_ref` for modifying the invoice reference
+* `gfdpspxpay_invoice_trans_number` for modifying the invoice transaction reference; NB: must be unique for PxPay account!
+* `gfdpspxpay_invoice_txndata1` for setting the TxnData1 field
+* `gfdpspxpay_invoice_txndata2` for setting the TxnData2 field
+* `gfdpspxpay_invoice_txndata3` for setting the TxnData3 field
+
+== Contributions ==
+
+* [Fork me on GitHub](https://github.com/webaware/gravity-forms-dps-pxpay/)
+
 == Changelog ==
+
+= 1.3.0 [2014-05-07] =
+* fixed: hidden products are now correctly handled
+* fixed: shipping is now correctly handled
+* fixed: RGFormsModel::update_lead() is deprecated in Gravity Forms v1.8.8
+* changed: move authcode into Gravity Forms 1.8.8 Payment Details box on entry details
+* changed: merge template for payment amount is now formatted as currency
+* changed: save transaction reference for failed transactions too
+* changed: some code refactoring
 
 = 1.2.1 [2014-05-14] =
 * fixed: products with separate quantity fields fail

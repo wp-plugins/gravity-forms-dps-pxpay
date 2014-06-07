@@ -116,37 +116,7 @@ class GFDpsPxPayFeedAdmin {
 	public function metaboxSave($post, $metabox) {
 		global $action;
 
-		?>
-
-		<div style="display:none;">
-		<?php submit_button( __( 'Save' ), 'button', 'save' ); ?>
-		<input type="hidden" name="post_status" value="publish" />
-		</div>
-
-		<div id="major-publishing-actions">
-		<?php do_action('post_submitbox_start'); ?>
-		<div id="delete-action">
-		<?php
-		if ( current_user_can( "delete_post", $post->ID ) ) {
-			if ( !EMPTY_TRASH_DAYS )
-				$delete_text = __('Delete Permanently');
-			else
-				$delete_text = __('Move to Trash');
-			?>
-			<a class="submitdelete deletion" href="<?php echo get_delete_post_link($post->ID); ?>"><?php echo $delete_text; ?></a><?php
-		} ?>
-		</div>
-
-		<div id="publishing-action">
-		<span class="spinner"></span>
-			<input name="original_publish" type="hidden" id="original_publish" value="Save" />
-			<?php submit_button('Save', 'primary button-large', 'publish', false, array() ); ?>
-		</div>
-		<div class="clear"></div>
-
-		</div>
-
-		<?php
+		include GFDPSPXPAY_PLUGIN_ROOT . 'views/metabox-save.php';
 	}
 
 	/**
@@ -164,21 +134,7 @@ class GFDpsPxPayFeedAdmin {
 			$feedMap[$f->FormID] = 1;
 		}
 
-		?>
-		<select size="1" name="_gfdpspxpay_form">
-			<option value="">-- please choose --</option>
-			<?php
-			foreach ($forms as $form) {
-				// only if form for this feed, or without a feed
-				if ($form->id == $feed->FormID || !isset($feedMap[$form->id])) {
-					$selected = selected($feed->FormID, $form->id, false);
-					echo "<option value='{$form->id}' $selected>", htmlspecialchars($form->title), "</option>\n";
-				}
-			}
-			?>
-		</select>
-
-		<?php
+		include GFDPSPXPAY_PLUGIN_ROOT . 'views/metabox-form.php';
 	}
 
 	/**
@@ -188,15 +144,8 @@ class GFDpsPxPayFeedAdmin {
 	*/
 	public function metaboxURLs($post, $metabox) {
 		$feed = $metabox['args']['feed'];
-		$UrlFail = htmlspecialchars($feed->UrlFail);
 
-		?>
-		<p><label>URL to redirect to on transaction failure:</label><br />
-			<input type="url" class='large-text' name="_gfdpspxpay_url_fail" value="<?php echo $UrlFail; ?>" /></p>
-
-		<p><em>Please note: standard Gravity Forms submission logic applies if the DPS transaction is successful.</em></p>
-
-		<?php
+		include GFDPSPXPAY_PLUGIN_ROOT . 'views/metabox-urls.php';
 	}
 
 	/**
@@ -206,15 +155,8 @@ class GFDpsPxPayFeedAdmin {
 	*/
 	public function metaboxOpts($post, $metabox) {
 		$feed = $metabox['args']['feed'];
-		?>
-		<p><label><input type="checkbox" name="_gfdpspxpay_delay_notify" value="1" <?php checked($feed->DelayNotify); ?> />
-		 Send admin notification only when payment is processed</label></p>
-		<p><label><input type="checkbox" name="_gfdpspxpay_delay_autorespond" value="1" <?php checked($feed->DelayAutorespond); ?> />
-		 Send user notification only when payment is processed</label></p>
-		<p><label><input type="checkbox" name="_gfdpspxpay_delay_post" value="1" <?php checked($feed->DelayPost); ?> />
-		 Create post only when payment is processed</label></p>
 
-		<?php
+		include GFDPSPXPAY_PLUGIN_ROOT . 'views/metabox-options.php';
 	}
 
 	/**
@@ -226,70 +168,9 @@ class GFDpsPxPayFeedAdmin {
 		wp_nonce_field('save', GFDPSPXPAY_TYPE_FEED.'_wpnonce', false);
 
 		$feed = $metabox['args']['feed'];
-		$MerchantReference = htmlspecialchars($feed->MerchantReference);
-		$EmailAddress = htmlspecialchars($feed->EmailAddress);
-		$TxnData1 = htmlspecialchars($feed->TxnData1);
-		$TxnData2 = htmlspecialchars($feed->TxnData2);
-		$TxnData3 = htmlspecialchars($feed->TxnData3);
-
 		$fields = $feed->FormID ? self::getFormFields($feed->FormID) : false;
 
-		?>
-		<table class='gfdpspxpay-feed-fields gfdpspxpay-details'>
-
-			<tr>
-				<th>Merchant Reference:</th>
-				<td>
-					<select size="1" name="_gfdpspxpay_merchant_ref">
-						<?php if ($fields) echo self::selectFields($MerchantReference, $fields); ?>
-					</select> <span class='required' title='required field'>*</span>
-				</td>
-			</tr>
-
-			<tr>
-				<th>TxnData1:</th>
-				<td>
-					<select size="1" name="_gfdpspxpay_txndata1">
-						<?php if ($fields) echo self::selectFields($TxnData1, $fields); ?>
-					</select>
-				</td>
-			</tr>
-
-			<tr>
-				<th>TxnData2:</th>
-				<td>
-					<select size="1" name="_gfdpspxpay_txndata2">
-						<?php if ($fields) echo self::selectFields($TxnData2, $fields); ?>
-					</select>
-				</td>
-			</tr>
-
-			<tr>
-				<th>TxnData3:</th>
-				<td>
-					<select size="1" name="_gfdpspxpay_txndata3">
-						<?php if ($fields) echo self::selectFields($TxnData3, $fields); ?>
-					</select>
-				</td>
-			</tr>
-
-			<tr>
-				<th>Email Address:</th>
-				<td>
-					<select size="1" name="_gfdpspxpay_email">
-						<?php if ($fields) echo self::selectFields($EmailAddress, $fields); ?>
-					</select>
-				</td>
-			</tr>
-
-		</table>
-
-		<p><em>Please note: this information will appear in your DPS Payline console.</em>
-			<br /><em>Email Address is currently accepted by DPS but not stored; we hope this will change soon.</em>
-			<br /><em>If you need to see Email Address in DPS Payline, please map it to one of the TxnData fields for now.</em>
-		</p>
-
-		<?php
+		include GFDPSPXPAY_PLUGIN_ROOT . 'views/metabox-fields.php';
 	}
 
 	/**
@@ -341,8 +222,7 @@ class GFDpsPxPayFeedAdmin {
 			);
 
 			if (isset($_POST['_gfdpspxpay_form'])) {
-				if (!wp_verify_nonce($_POST[GFDPSPXPAY_TYPE_FEED.'_wpnonce'], 'save'))
-					die('Security exception');
+				check_admin_referer('save', GFDPSPXPAY_TYPE_FEED . '_wpnonce');
 			}
 
 			foreach ($fields as $fieldName) {
@@ -350,10 +230,12 @@ class GFDpsPxPayFeedAdmin {
 
 					$value = $_POST[$fieldName];
 
-					if (empty($value))
+					if (empty($value)) {
 						delete_post_meta($postID, $fieldName);
-					else
+					}
+					else {
 						update_post_meta($postID, $fieldName, $value);
+					}
 				}
 				else {
 					// checkboxes aren't set, so delete them
@@ -475,12 +357,10 @@ class GFDpsPxPayFeedAdmin {
 	* @return string
 	*/
 	public static function selectFields($current, $fields) {
-		$opts = "<option value=''>-- not selected --</option>\n";
+		$opts = '<option value="">-- not selected --</option>';
 
 		foreach ($fields as $name => $title) {
-			$selected = selected($current, $name, false);
-			$title = htmlspecialchars($title);
-			$opts .= "<option value='$name' $selected>$title</option>\n";
+			$opts .= sprintf('<option value="%s" %s>%s</option>', esc_attr($name), selected($current, $name, false), esc_html($title));
 		}
 
 		return $opts;

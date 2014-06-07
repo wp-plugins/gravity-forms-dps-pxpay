@@ -1,15 +1,15 @@
 <?php
 /*
 Plugin Name: Gravity Forms DPS PxPay
-Plugin URI: http://snippets.webaware.com.au/wordpress-plugins/gravityforms-dps-pxpay/
+Plugin URI: http://shop.webaware.com.au/downloads/gravity-forms-dps-pxpay/
 Description: Integrates Gravity Forms with DPS PxPay payment gateway, enabling end users to purchase goods and services through Gravity Forms.
-Version: 1.2.1
+Version: 1.3.0
 Author: WebAware
-Author URI: http://www.webaware.com.au/
+Author URI: http://webaware.com.au/
 */
 
 /*
-copyright (c) 2013-2014 WebAware Pty Ltd (email : rmckay@webaware.com.au)
+copyright (c) 2013-2014 WebAware Pty Ltd (email : support@webaware.com.au)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -26,20 +26,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-/*
-useful references:
-http://www.paymentexpress.com/Technical_Resources/Ecommerce_Hosted/PxPay
-*/
-
-/*
-TODO: properly handle validation exceptions
-*/
-
 if (!defined('GFDPSPXPAY_PLUGIN_ROOT')) {
 	define('GFDPSPXPAY_PLUGIN_ROOT', dirname(__FILE__) . '/');
 	define('GFDPSPXPAY_PLUGIN_NAME', basename(dirname(__FILE__)) . '/' . basename(__FILE__));
 	define('GFDPSPXPAY_PLUGIN_OPTIONS', 'gfdpspxpay_plugin');
-	define('GFDPSPXPAY_PLUGIN_VERSION', '1.2.1');
+	define('GFDPSPXPAY_PLUGIN_VERSION', '1.3.0');
 
 	// custom post types
 	define('GFDPSPXPAY_TYPE_FEED', 'gfdpspxpay_feed');
@@ -58,13 +49,13 @@ if (!defined('GFDPSPXPAY_PLUGIN_ROOT')) {
 */
 function gfdpspxpay_autoload($class_name) {
 	static $classMap = array (
-		'GFDpsPxPayAdmin'						=> 'class.GFDpsPxPayAdmin.php',
-		'GFDpsPxPayFeed'						=> 'class.GFDpsPxPayFeed.php',
-		'GFDpsPxPayFeedAdmin'					=> 'class.GFDpsPxPayFeedAdmin.php',
-		'GFDpsPxPayFormData'					=> 'class.GFDpsPxPayFormData.php',
-		'GFDpsPxPayPayment'						=> 'class.GFDpsPxPayPayment.php',
-		'GFDpsPxPayPlugin'						=> 'class.GFDpsPxPayPlugin.php',
-		'GFDpsPxPayResult'						=> 'class.GFDpsPxPayResult.php',
+		'GFDpsPxPayAdmin'						=> 'includes/class.GFDpsPxPayAdmin.php',
+		'GFDpsPxPayFeed'						=> 'includes/class.GFDpsPxPayFeed.php',
+		'GFDpsPxPayFeedAdmin'					=> 'includes/class.GFDpsPxPayFeedAdmin.php',
+		'GFDpsPxPayFormData'					=> 'includes/class.GFDpsPxPayFormData.php',
+		'GFDpsPxPayPayment'						=> 'includes/class.GFDpsPxPayPayment.php',
+		'GFDpsPxPayPlugin'						=> 'includes/class.GFDpsPxPayPlugin.php',
+		'GFDpsPxPayResult'						=> 'includes/class.GFDpsPxPayResult.php',
 	);
 
 	if (isset($classMap[$class_name])) {

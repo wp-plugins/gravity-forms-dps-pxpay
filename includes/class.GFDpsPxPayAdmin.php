@@ -14,16 +14,29 @@ class GFDpsPxPayAdmin {
 		$this->plugin = $plugin;
 
 		// admin hooks
-		add_action('admin_init', array($this, 'actionAdminInit'));
-		add_action('admin_notices', array($this, 'actionAdminNotices'));
+		add_action('admin_init', array($this, 'adminInit'));
+		add_action('admin_notices', array($this, 'checkPrerequisites'));
 		add_action('plugin_action_links_' . GFDPSPXPAY_PLUGIN_NAME, array($this, 'addPluginActionLinks'));
 		add_filter('plugin_row_meta', array($this, 'addPluginDetailsLinks'), 10, 2);
 		add_filter('admin_enqueue_scripts', array($this, 'enqueueScripts'));
 
-		// GravityForms hooks
-		add_filter('gform_addon_navigation', array($this, 'gformAddonNavigation'));
-		add_action('forms_page_gf_settings', array($this, 'adminPageGfSettings'));
-		add_action('gform_entry_info', array($this, 'gformEntryInfo'), 10, 2);
+		// only if Gravity Forms is activated
+		if (class_exists('GFCommon')) {
+
+			// GravityForms hooks
+			add_filter('gform_addon_navigation', array($this, 'gformAddonNavigation'));
+			add_action('forms_page_gf_settings', array($this, 'adminPageGfSettings'));
+
+			// handle the new Payment Details box if supported
+			if (version_compare(GFCommon::$version, '1.8.7.99999', '<')) {
+				// pre-v1.8.8 settings
+				add_action('gform_entry_info', array($this, 'gformPaymentDetails'), 10, 2);
+			}
+			else {
+				// post-v1.8.8 settings
+				add_action('gform_payment_details', array($this, 'gformPaymentDetails'), 10, 2);
+			}
+		}
 
 		// AJAX actions
 		add_action('wp_ajax_gfdpspxpay_form_fields', array($this, 'ajaxGfFormFields'));
@@ -41,7 +54,7 @@ class GFDpsPxPayAdmin {
 	/**
 	* handle admin init action
 	*/
-	public function actionAdminInit() {
+	public function adminInit() {
 		global $typenow;
 
 		// register plugin settings
@@ -82,11 +95,30 @@ class GFDpsPxPayAdmin {
 	}
 
 	/**
-	* show admin messages
+	* check for required prerequisites, tell admin if any are missing
 	*/
-	public function actionAdminNotices() {
+	public function checkPrerequisites() {
+		// need at least PHP 5.2.11 for libxml_disable_entity_loader()
+		$php_min = '5.2.11';
+		if (version_compare(PHP_VERSION, $php_min, '<')) {
+			include GFDPSPXPAY_PLUGIN_ROOT . 'views/requires-php.php';
+		}
+
+		// need these PHP extensions too
+		$prereqs = array('libxml', 'SimpleXML', 'xmlwriter');
+		$missing = array();
+		foreach ($prereqs as $ext) {
+			if (!extension_loaded($ext)) {
+				$missing[] = $ext;
+			}
+		}
+		if (!empty($missing)) {
+			include GFDPSPXPAY_PLUGIN_ROOT . 'views/requires-extensions.php';
+		}
+
+		// and of course, we need Gravity Forms
 		if (!self::isGfActive()) {
-			$this->plugin->showError('Gravity Forms DPS PxPay requires <a href="http://www.gravityforms.com/">Gravity Forms</a> to be installed and activated.');
+			include GFDPSPXPAY_PLUGIN_ROOT . 'views/requires-gravity-forms.php';
 		}
 	}
 
@@ -110,7 +142,7 @@ class GFDpsPxPayAdmin {
 		if ($file == GFDPSPXPAY_PLUGIN_NAME) {
 			$links[] = '<a href="http://wordpress.org/support/plugin/gravity-forms-dps-pxpay">' . __('Get help') . '</a>';
 			$links[] = '<a href="http://wordpress.org/plugins/gravity-forms-dps-pxpay/">' . __('Rating') . '</a>';
-			$links[] = '<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=C4P55EH25BGTL">' . __('Donate') . '</a>';
+			$links[] = '<a href="http://shop.webaware.com.au/downloads/gravity-forms-dps-pxpay/">' . __('Donate') . '</a>';
 		}
 
 		return $links;
@@ -143,12 +175,12 @@ class GFDpsPxPayAdmin {
 	* @param int $form_id
 	* @param array $lead
 	*/
-	public function gformEntryInfo($form_id, $lead) {
+	public function gformPaymentDetails($form_id, $lead) {
 		$payment_gateway = gform_get_meta($lead['id'], 'payment_gateway');
 		if ($payment_gateway == 'gfdpspxpay') {
 			$authCode = gform_get_meta($lead['id'], 'authcode');
 			if ($authCode) {
-				echo 'Auth Code: ', htmlspecialchars($authCode), "<br /><br />\n";
+				echo 'Auth Code: ', esc_html($authCode), "<br /><br />\n";
 			}
 		}
 	}
