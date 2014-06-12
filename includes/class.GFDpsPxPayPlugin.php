@@ -40,7 +40,7 @@ class GFDpsPxPayPlugin {
 		$this->initOptions();
 
 		// record plugin URL base
-		$this->urlBase = plugin_dir_url(__FILE__);
+		$this->urlBase = plugin_dir_url(GFDPSPXPAY_PLUGIN_FILE);
 
 		add_action('init', array($this, 'init'));
 		add_action('parse_request',  array($this, 'processDpsReturn'));		// process DPS PxPay return
@@ -286,6 +286,12 @@ class GFDpsPxPayPlugin {
 			return $confirmation;
 		}
 
+		// run away if nothing to charge
+		$formData = $this->getFormData($form);
+		if (empty($formData->total)) {
+			return $confirmation;
+		}
+
 		// generate a unique transactiond ID to avoid collisions, e.g. between different installations using the same PxPay account
 		// use last three characters of entry ID as prefix, to avoid collisions with entries created at same microsecond
 		// uniqid() generates 13-character string, plus 3 characters from entry ID = 16 characters which is max for field
@@ -297,8 +303,6 @@ class GFDpsPxPayPlugin {
 		// record payment gateway and generated transaction number, for later reference
 		gform_update_meta($entry['id'], 'payment_gateway', 'gfdpspxpay');
 		gform_update_meta($entry['id'], 'gfdpspxpay_txn_id', $transactionID);
-
-		$formData = $this->getFormData($form);
 
 		// build a payment request and execute on API
 		list($userID, $userKey) = $this->getDpsCredentials($this->options['useTest']);

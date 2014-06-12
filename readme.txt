@@ -7,7 +7,7 @@ Donate link: http://shop.webaware.com.au/downloads/gravity-forms-dps-pxpay/
 Tags: gravityforms, gravity forms, gravity, dps, payment express, pxpay, donation, donations, payment, payment gateway, ecommerce, credit cards, new zealand, australia
 Requires at least: 3.7.1
 Tested up to: 3.9.1
-Stable tag: 1.3.0
+Stable tag: 1.3.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -131,6 +131,10 @@ Developers can use these filter hooks to modify some eWAY invoice properties. Ea
 * [Fork me on GitHub](https://github.com/webaware/gravity-forms-dps-pxpay/)
 
 == Changelog ==
+
+= 1.3.1 [2014-05-12] =
+* fixed: admin scripts / stylesheet not loading, feed admin broken
+* fixed: don't attempt to make a payment when the total is 0, so form entry can still be submitted
 
 = 1.3.0 [2014-05-07] =
 * fixed: hidden products are now correctly handled
