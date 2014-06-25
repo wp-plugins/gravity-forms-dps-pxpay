@@ -27,6 +27,9 @@ class GFDpsPxPayAdmin {
 			add_filter('gform_addon_navigation', array($this, 'gformAddonNavigation'));
 			add_action('forms_page_gf_settings', array($this, 'adminPageGfSettings'));
 
+			// tell Gravity Forms not to put payment details into info (i.e. do put them into the new payment details box!)
+			add_filter('gform_enable_entry_info_payment_details', '__return_false');
+
 			// handle the new Payment Details box if supported
 			if (version_compare(GFCommon::$version, '1.8.7.99999', '<')) {
 				// pre-v1.8.8 settings

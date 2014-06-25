@@ -7,7 +7,7 @@ Donate link: http://shop.webaware.com.au/downloads/gravity-forms-dps-pxpay/
 Tags: gravityforms, gravity forms, gravity, dps, payment express, pxpay, donation, donations, payment, payment gateway, ecommerce, credit cards, new zealand, australia
 Requires at least: 3.7.1
 Tested up to: 3.9.1
-Stable tag: 1.3.1
+Stable tag: 1.3.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -15,13 +15,13 @@ Integrate Gravity Forms with the DPS Payment Express PxPay credit card payment g
 
 == Description ==
 
-Gravity Forms DPS PxPay adds a credit card payment gateway for [DPS PxPay](http://www.paymentexpress.com/Products/Ecommerce/DPS_Hosted) to the [Gravity Forms](http://www.gravityforms.com/) plugin.
+Gravity Forms DPS PxPay adds a credit card payment gateway for [DPS PxPay](http://www.paymentexpress.com/Products/Ecommerce/DPS_Hosted) to the [Gravity Forms](https://www.e-junkie.com/ecom/gb.php?cl=54585&c=ib&aff=277327) plugin.
 
 * build online donation forms
 * build online booking forms
 * build simple Buy Now forms
 
-> NB: this plugin extends [Gravity Forms](http://www.gravityforms.com/); you still need to install and activate Gravity Forms!
+> NB: this plugin extends [Gravity Forms](https://www.e-junkie.com/ecom/gb.php?cl=54585&c=ib&aff=277327); you still need to install and activate Gravity Forms!
 
 = Sponsorships =
 
@@ -31,12 +31,12 @@ Thanks for sponsoring new features on Gravity Forms DPS PxPay!
 
 = Requirements: =
 
-* Install the [Gravity Forms](http://www.gravityforms.com/) plugin
+* Install the [Gravity Forms](https://www.e-junkie.com/ecom/gb.php?cl=54585&c=ib&aff=277327) plugin
 * Create an account with DPS for [PxPay](https://sec.paymentexpress.com/pxmi/apply)
 
 == Installation ==
 
-1. Install and activate the [Gravity Forms](http://www.gravityforms.com/) plugin
+1. Install and activate the [Gravity Forms](https://www.e-junkie.com/ecom/gb.php?cl=54585&c=ib&aff=277327) plugin
 2. Upload the Gravity Forms DPS PxPay plugin to your /wp-content/plugins/ directory.
 3. Activate the Gravity Forms DPS PxPay plugin through the 'Plugins' menu in WordPress.
 4. Edit the DPS PxPay payment gateway settings to set your DPS PxPay user ID and key
@@ -55,7 +55,7 @@ DPS PxPay is a hosted Credit Card payment gateway. DPS Payment Express is one of
 
 = Will this plugin work without installing Gravity Forms? =
 
-No. This plugin adds a DPS Payment Express PxPay payment gateway to Gravity Forms so that you can add online payments to your forms. You must purchase and install a copy of the [Gravity Forms](http://www.gravityforms.com/) plugin too.
+No. This plugin adds a DPS Payment Express PxPay payment gateway to Gravity Forms so that you can add online payments to your forms. You must purchase and install a copy of the [Gravity Forms](https://www.e-junkie.com/ecom/gb.php?cl=54585&c=ib&aff=277327) plugin too.
 
 = What Gravity Forms license do I need? =
 
@@ -132,11 +132,14 @@ Developers can use these filter hooks to modify some eWAY invoice properties. Ea
 
 == Changelog ==
 
-= 1.3.1 [2014-05-12] =
+= 1.3.2 [2014-06-25] =
+* fixed: Gravity Forms 1.8.9 Payment Details box on entry details
+
+= 1.3.1 [2014-06-12] =
 * fixed: admin scripts / stylesheet not loading, feed admin broken
 * fixed: don't attempt to make a payment when the total is 0, so form entry can still be submitted
 
-= 1.3.0 [2014-05-07] =
+= 1.3.0 [2014-06-07] =
 * fixed: hidden products are now correctly handled
 * fixed: shipping is now correctly handled
 * fixed: RGFormsModel::update_lead() is deprecated in Gravity Forms v1.8.8
