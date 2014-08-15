@@ -259,11 +259,11 @@ class GFDpsPxPayResultResponse {
 	* @throws GFDpsPxPayException
 	*/
 	public function loadResponseXML($response) {
-		try {
-			// prevent XML injection attacks, and handle errors without warnings
-			$oldDisableEntityLoader = libxml_disable_entity_loader(TRUE);
-			$oldUseInternalErrors = libxml_use_internal_errors(TRUE);
+		// prevent XML injection attacks, and handle errors without warnings
+		$oldDisableEntityLoader = libxml_disable_entity_loader(TRUE);
+		$oldUseInternalErrors = libxml_use_internal_errors(TRUE);
 
+		try {
 			$xml = simplexml_load_string($response);
 			if ($xml === false) {
 				$errmsg = '';

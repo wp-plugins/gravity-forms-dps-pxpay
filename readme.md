@@ -1,6 +1,6 @@
 # Gravity Forms DPS PxPay #
 
-Integrate [Gravity Forms](https://www.e-junkie.com/ecom/gb.php?cl=54585&c=ib&aff=277327) with the DPS Payment Express PxPay credit card payment gateway
+Integrate [Gravity Forms](http://webaware.com.au/get-gravity-forms) with the DPS Payment Express PxPay credit card payment gateway
 
 * [Home](http://shop.webaware.com.au/downloads/gravity-forms-dps-pxpay/)
 * [GitHub](https://github.com/webaware/gravity-forms-dps-pxpay/)

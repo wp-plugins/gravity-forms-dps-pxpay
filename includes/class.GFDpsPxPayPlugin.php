@@ -19,8 +19,7 @@ class GFDpsPxPayPlugin {
 
 	/**
 	* static method for getting the instance of this singleton object
-	*
-	* @return GFDpsPxPayPlugin
+	* @return self
 	*/
 	public static function getInstance() {
 		static $instance = null;
@@ -73,6 +72,7 @@ class GFDpsPxPayPlugin {
 	*/
 	public function init() {
 		// hook into Gravity Forms
+		add_filter('gform_logging_supported', array($this, 'enableLogging'));
 		add_filter('gform_validation', array($this, 'gformValidation'));
 		add_filter('gform_validation_message', array($this, 'gformValidationMessage'), 10, 2);
 		add_filter('gform_confirmation', array($this, 'gformConfirmation'), 1000, 4);
@@ -132,9 +132,9 @@ class GFDpsPxPayPlugin {
 	*/
 	public function gformDelayPost($is_disabled, $form, $lead) {
 		$feed = $this->getFeed($form['id']);
-		if ($feed && $feed->DelayPost) {
-			$is_disabled = true;
-		}
+		$is_disabled = !empty($feed->DelayPost);
+
+		self::log_debug(sprintf('delay post creation: %s; form id %s, lead id %s', $is_disabled ? 'yes' : 'no', $form['id'], $lead['id']));
 
 		return $is_disabled;
 	}
@@ -148,9 +148,9 @@ class GFDpsPxPayPlugin {
 	*/
 	public function gformDelayUserNotification($is_disabled, $form, $lead) {
 		$feed = $this->getFeed($form['id']);
-		if ($feed && $feed->DelayAutorespond) {
-			$is_disabled = true;
-		}
+		$is_disabled = !empty($feed->DelayAutorespond);
+
+		$this->log_debug(sprintf('delay user notification: %s; form id %s, lead id %s', $is_disabled ? 'yes' : 'no', $form['id'], $lead['id']));
 
 		return $is_disabled;
 	}
@@ -164,9 +164,9 @@ class GFDpsPxPayPlugin {
 	*/
 	public function gformDelayAdminNotification($is_disabled, $form, $lead) {
 		$feed = $this->getFeed($form['id']);
-		if ($feed && $feed->DelayNotify) {
-			$is_disabled = true;
-		}
+		$is_disabled = !empty($feed->DelayNotify);
+
+		$this->log_debug(sprintf('delay admin notification: %s; form id %s, lead id %s', $is_disabled ? 'yes' : 'no', $form['id'], $lead['id']));
 
 		return $is_disabled;
 	}
@@ -213,6 +213,9 @@ class GFDpsPxPayPlugin {
 					break;
 			}
 		}
+
+		$this->log_debug(sprintf('delay notification: %s; form id %s, lead id %s, notification "%s"', $is_disabled ? 'yes' : 'no',
+			$form['id'], $lead['id'], $notification['name']));
 
 		return $is_disabled;
 	}
@@ -330,6 +333,10 @@ class GFDpsPxPayPlugin {
 //~ error_log(__METHOD__ . "\n" . print_r($paymentReq,1));
 //~ error_log(__METHOD__ . "\n" . $paymentReq->getPaymentXML());
 
+		self::log_debug(sprintf('%s gateway, invoice ref: %s, transaction: %s, amount: %s',
+			$this->options['useTest'] ? 'test' : 'live',
+			$paymentReq->invoiceReference, $paymentReq->transactionNumber, $paymentReq->amount));
+
 		try {
 			$response = $paymentReq->processPayment();
 
@@ -341,12 +348,18 @@ class GFDpsPxPayPlugin {
 
 				// NB: GF handles redirect via JavaScript if headers already sent, or AJAX
 				$confirmation = array('redirect' => $response->paymentURL);
+
+				self::log_debug('Payment Express request valid, redirecting...');
+			}
+			else {
+				self::log_debug('Payment Express request invalid');
 			}
 		}
 		catch (GFDpsPxPayException $e) {
 			// TODO: what now?
 			GFFormsModel::update_lead_property($entry['id'], 'payment_status', 'Failed');
 			echo nl2br(esc_html($e->getMessage()));
+			self::log_error(__METHOD__ . ": " . $e->getMessage());
 			exit;
 		}
 
@@ -413,6 +426,9 @@ class GFDpsPxPayPlugin {
 						// record entry's unique ID in database
 						gform_update_meta($lead['id'], 'gfdpspxpay_unique_id', GFFormsModel::get_form_unique_id($form['id']));
 
+						self::log_debug(sprintf('success, date = %s, id = %s, status = %s, amount = %s, authcode = %s',
+							$lead['payment_date'], $lead['transaction_id'], $lead['payment_status'],
+							$lead['payment_amount'], $response->authCode));
 					}
 					else {
 						$lead['payment_status'] = 'Failed';
@@ -426,6 +442,8 @@ class GFDpsPxPayPlugin {
 						else {
 							GFFormsModel::update_lead($lead);
 						}
+
+						self::log_debug(sprintf('failed; %s', $response->statusText));
 
 						// redirect to failure page if set, otherwise fall through to redirect back to confirmation page
 						$feed = $this->getFeed($form['id']);
@@ -445,6 +463,7 @@ class GFDpsPxPayPlugin {
 			catch (GFDpsPxPayException $e) {
 				// TODO: what now?
 				echo nl2br(esc_html($e->getMessage()));
+				self::log_error(__METHOD__ . ': ' . $e->getMessage());
 				exit;
 			}
 		}
@@ -675,6 +694,39 @@ class GFDpsPxPayPlugin {
 		}
 
 		return $this->formData;
+	}
+
+	/**
+	* enable Gravity Forms Logging Add-On support for this plugin
+	* @param array $plugins
+	* @return array
+	*/
+	public function enableLogging($plugins){
+		$plugins['gfdpspxpay'] = 'Gravity Forms DPS PxPay';
+
+		return $plugins;
+	}
+
+	/**
+	* write an error log via the Gravity Forms Logging Add-On
+	* @param string $message
+	*/
+	public static function log_error($message){
+		if (class_exists('GFLogging')) {
+			GFLogging::include_logger();
+			GFLogging::log_message('gfdpspxpay', $message, KLogger::ERROR);
+		}
+	}
+
+	/**
+	* write an debug message log via the Gravity Forms Logging Add-On
+	* @param string $message
+	*/
+	public static function log_debug($message){
+		if (class_exists('GFLogging')) {
+			GFLogging::include_logger();
+			GFLogging::log_message('gfdpspxpay', $message, KLogger::DEBUG);
+		}
 	}
 
 	/**
