@@ -53,7 +53,6 @@ class GFDpsPxPayFormData {
 
 		// iterate over fields to collect data
 		foreach ($form['fields'] as &$field) {
-			$fieldName = empty($field['adminLabel']) ? $field['label'] : $field['adminLabel'];
 			$id = (string) $field['id'];
 
 			switch(GFFormsModel::get_input_type($field)){

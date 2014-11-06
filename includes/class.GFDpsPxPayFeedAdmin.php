@@ -22,6 +22,7 @@ class GFDpsPxPayFeedAdmin {
 		add_filter('post_row_actions', array($this, 'filterPostRowActions'), 10, 2);
 		add_filter('wp_insert_post_data', array($this, 'filterInsertPostData'), 10, 2);
 		add_filter('post_updated_messages', array($this, 'filterPostUpdatedMessages'));
+		add_filter('parse_query', array($this, 'adminPostOrder'));
 
 		$min = defined('SCRIPT_DEBUG') && SCRIPT_DEBUG ? '' : '.min';
 		$ver = defined('SCRIPT_DEBUG') && SCRIPT_DEBUG ? time() : GFDPSPXPAY_PLUGIN_VERSION;
@@ -219,6 +220,8 @@ class GFDpsPxPayFeedAdmin {
 				'_gfdpspxpay_delay_post',
 				'_gfdpspxpay_delay_notify',
 				'_gfdpspxpay_delay_autorespond',
+				'_gfdpspxpay_delay_userrego',
+				'_gfdpspxpay_delay_exec_always',
 			);
 
 			if (isset($_POST['_gfdpspxpay_form'])) {
@@ -317,6 +320,21 @@ class GFDpsPxPayFeedAdmin {
 	}
 
 	/**
+	* change default order to name ascending
+	* @param WP_Query $query
+	* @return WP_Query
+	*/
+	public function adminPostOrder($query) {
+		// only for admin queries for this post type, with no specified order
+		if ($query->is_admin && $query->get('post_type') == GFDPSPXPAY_TYPE_FEED && empty($query->query_vars['orderby'])) {
+			$query->set('orderby', 'post_title');
+			$query->set('order', 'ASC');
+		}
+
+		return $query;
+	}
+
+	/**
 	* get a map of GF form field IDs to field names, for populating drop-down lists
 	* @param int $formID
 	* @return array
@@ -365,4 +383,5 @@ class GFDpsPxPayFeedAdmin {
 
 		return $opts;
 	}
+
 }

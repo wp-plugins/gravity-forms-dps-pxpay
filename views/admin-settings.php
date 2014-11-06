@@ -17,18 +17,18 @@ global $wp_version;
 	<tr>
 		<th>User ID</th>
 		<td>
-			<input type='text' class="regular-text" name='gfdpspxpay_plugin[userID]' value="<?php echo esc_attr($options['userID']); ?>" />
+			<input type="text" class="regular-text" name="gfdpspxpay_plugin[userID]" value="<?php echo esc_attr($options['userID']); ?>" />
 		</td>
 	</tr>
 
 	<tr>
 		<th>User Key</th>
 		<td>
-			<input type='text' class="large-text" name='gfdpspxpay_plugin[userKey]' value="<?php echo esc_attr($options['userKey']); ?>" />
+			<input type="text" class="large-text" name="gfdpspxpay_plugin[userKey]" value="<?php echo esc_attr($options['userKey']); ?>" />
 		</td>
 	</tr>
 
-	<tr valign='top'>
+	<tr valign="top">
 		<th>Use Sandbox (testing)
 			<span class="gfdpspxpay-opt-admin-test">
 				<br />Sandbox requires a separate account that has not been activated for live payments.
@@ -43,14 +43,23 @@ global $wp_version;
 	<tr class="gfdpspxpay-opt-admin-test">
 		<th>Test ID</th>
 		<td>
-			<input type='text' class="regular-text" name='gfdpspxpay_plugin[testID]' value="<?php echo esc_attr($options['testID']); ?>" />
+			<input type="text" class="regular-text" name="gfdpspxpay_plugin[testID]" value="<?php echo esc_attr($options['testID']); ?>" />
 		</td>
 	</tr>
 
 	<tr class="gfdpspxpay-opt-admin-test">
 		<th>Test Key</th>
 		<td>
-			<input type='text' class="large-text" name='gfdpspxpay_plugin[testKey]' value="<?php echo esc_attr($options['testKey']); ?>" />
+			<input type="text" class="large-text" name="gfdpspxpay_plugin[testKey]" value="<?php echo esc_attr($options['testKey']); ?>" />
+		</td>
+	</tr>
+
+	<tr valign="top">
+		<th>PxPay API version</th>
+		<td>
+			<label><input type="radio" name="gfdpspxpay_plugin[apiVersion]" value="1" <?php checked($options['apiVersion'], '1'); ?> />&nbsp;version 1</label>
+			<br />
+			<label><input type="radio" name="gfdpspxpay_plugin[apiVersion]" value="2" <?php checked($options['apiVersion'], '2'); ?> />&nbsp;version 2</label>
 		</td>
 	</tr>
 

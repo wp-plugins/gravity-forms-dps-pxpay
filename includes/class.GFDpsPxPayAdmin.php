@@ -123,6 +123,9 @@ class GFDpsPxPayAdmin {
 		if (!self::isGfActive()) {
 			include GFDPSPXPAY_PLUGIN_ROOT . 'views/requires-gravity-forms.php';
 		}
+		elseif (GFDpsPxPayPlugin::versionCompareGF(GFDpsPxPayPlugin::MIN_VERSION_GF, '<')) {
+			include GFDPSPXPAY_PLUGIN_ROOT . 'views/requires-gravity-forms-upgrade.php';
+		}
 	}
 
 	/**
@@ -214,12 +217,13 @@ class GFDpsPxPayAdmin {
 	* @return array
 	*/
 	public function settingsValidate($input) {
-		$output['userID'] = trim($input['userID']);
-		$output['userKey'] = trim($input['userKey']);
-		$output['testID'] = trim($input['testID']);
-		$output['testKey'] = trim($input['testKey']);
-		$output['useTest'] = empty($input['useTest']) ? 0 : 1;
-		$output['sslVerifyPeer'] = 1;		// always set (for now anyway!)
+		$output['userID']			= trim($input['userID']);
+		$output['userKey']			= trim($input['userKey']);
+		$output['testID']			= trim($input['testID']);
+		$output['testKey']			= trim($input['testKey']);
+		$output['useTest']			= empty($input['useTest']) ? 0 : 1;
+		$output['apiVersion']		= empty($input['apiVersion']) ? 1 : absint($input['apiVersion']);
+		$output['sslVerifyPeer']	= 1;		// always set (for now anyway!)
 
 		if (empty($output['userID'])) {
 			$msg = "Please enter the DPS user ID.";

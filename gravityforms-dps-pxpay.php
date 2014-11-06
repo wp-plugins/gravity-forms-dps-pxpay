@@ -3,7 +3,7 @@
 Plugin Name: Gravity Forms DPS PxPay
 Plugin URI: http://shop.webaware.com.au/downloads/gravity-forms-dps-pxpay/
 Description: Integrates Gravity Forms with DPS PxPay payment gateway, enabling end users to purchase goods and services through Gravity Forms.
-Version: 1.3.3
+Version: 1.4.0
 Author: WebAware
 Author URI: http://webaware.com.au/
 */
@@ -26,22 +26,18 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-if (!defined('GFDPSPXPAY_PLUGIN_ROOT')) {
-	define('GFDPSPXPAY_PLUGIN_ROOT', dirname(__FILE__) . '/');
-	define('GFDPSPXPAY_PLUGIN_NAME', basename(dirname(__FILE__)) . '/' . basename(__FILE__));
-	define('GFDPSPXPAY_PLUGIN_FILE', __FILE__);
-	define('GFDPSPXPAY_PLUGIN_OPTIONS', 'gfdpspxpay_plugin');
-	define('GFDPSPXPAY_PLUGIN_VERSION', '1.3.3');
-
-	// custom post types
-	define('GFDPSPXPAY_TYPE_FEED', 'gfdpspxpay_feed');
-
-	// end point for the DPS PxPay API
-	define('GFDPSPXPAY_API_URL', 'https://sec.paymentexpress.com/pxpay/pxaccess.aspx');
-
-	// end point for return to website
-	define('GFDPSPXPAY_RETURN', 'gfdpspxpay_return');
+if (!defined('ABSPATH')) {
+	exit;
 }
+
+define('GFDPSPXPAY_PLUGIN_ROOT', dirname(__FILE__) . '/');
+define('GFDPSPXPAY_PLUGIN_NAME', basename(dirname(__FILE__)) . '/' . basename(__FILE__));
+define('GFDPSPXPAY_PLUGIN_FILE', __FILE__);
+define('GFDPSPXPAY_PLUGIN_OPTIONS', 'gfdpspxpay_plugin');
+define('GFDPSPXPAY_PLUGIN_VERSION', '1.4.0');
+
+// custom post types
+define('GFDPSPXPAY_TYPE_FEED', 'gfdpspxpay_feed');
 
 /**
 * autoload classes as/when needed

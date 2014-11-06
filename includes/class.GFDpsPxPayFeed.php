@@ -10,6 +10,8 @@ class GFDpsPxPayFeed {
 	public $DelayPost;						// boolean: create post only when payment is received
 	public $DelayNotify;					// boolean: send admin notification only when payment is received
 	public $DelayAutorespond;				// boolean: send user notification only when payment is received
+	public $DelayUserrego;					// boolean: register user only when payment is received
+	public $ExecDelayedAlways;				// boolean: always execute delayed actions, regardless of payment status
 	public $IsEnabled;						// boolean: is this feed enabled?
 
 	// fields set in admin
@@ -35,6 +37,8 @@ class GFDpsPxPayFeed {
 		'DelayPost'				=> '_gfdpspxpay_delay_post',
 		'DelayNotify'			=> '_gfdpspxpay_delay_notify',
 		'DelayAutorespond'		=> '_gfdpspxpay_delay_autorespond',
+		'DelayUserrego'			=> '_gfdpspxpay_delay_userrego',
+		'ExecDelayedAlways'		=> '_gfdpspxpay_delay_exec_always',
 	);
 
 	/**
@@ -61,7 +65,7 @@ class GFDpsPxPayFeed {
 	* @param WP_Post $post
 	*/
 	public function loadFromPost($post) {
-		// sanity check -- is it a wine pages feed?
+		// sanity check -- is it a PxPay feed?
 		if ($post->post_type != GFDPSPXPAY_TYPE_FEED) {
 			throw new GFDpsPxPayException(__CLASS__ . ": post is not a DPS PxPay feed: {$post->ID}");
 		}
@@ -106,7 +110,7 @@ class GFDpsPxPayFeed {
 	/**
 	* list all feeds
 	* @param int $cat_id optional category ID
-	* @return array(WpWinePagesProduct)
+	* @return array(self)
 	*/
 	public static function getList() {
 		$feeds = array();
