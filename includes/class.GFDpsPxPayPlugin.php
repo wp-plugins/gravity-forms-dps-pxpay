@@ -336,13 +336,13 @@ class GFDpsPxPayPlugin {
 		// get feed mapping form fields to payment request, run away if not set
 		$feed = $this->getFeed($form['id']);
 		if (!$feed) {
-			return $confirmation;
+			return $entry;
 		}
 
 		// run away if nothing to charge
 		$formData = $this->getFormData($form);
 		if (empty($formData->total)) {
-			return $confirmation;
+			return $entry;
 		}
 
 		// generate a unique transactiond ID to avoid collisions, e.g. between different installations using the same PxPay account
