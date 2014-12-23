@@ -6,8 +6,8 @@ Author URI: http://webaware.com.au/
 Donate link: http://shop.webaware.com.au/downloads/gravity-forms-dps-pxpay/
 Tags: gravityforms, gravity forms, gravity, dps, payment express, pxpay, donation, donations, payment, payment gateway, ecommerce, credit cards, new zealand, australia
 Requires at least: 3.7.1
-Tested up to: 4.0.1
-Stable tag: 1.4.1
+Tested up to: 4.1
+Stable tag: 1.4.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -126,11 +126,20 @@ Developers can use these filter hooks to modify some invoice properties. Each fi
 * `gfdpspxpay_invoice_txndata2` for setting the TxnData2 field
 * `gfdpspxpay_invoice_txndata3` for setting the TxnData3 field
 
+Developers can run processes on these actions (e.g. load classes required to handle invoice presentation):
+
+* `gfdpspxpay_process_return`
+* `gfdpspxpay_process_confirmation`
+
 == Contributions ==
 
 * [Fork me on GitHub](https://github.com/webaware/gravity-forms-dps-pxpay/)
 
 == Changelog ==
+
+= 1.4.2, 2014-12-23 =
+* added: hooks `gfdpspxpay_process_return` and `gfdpspxpay_process_confirmation`
+* changed: merge tags use currency of transaction for amount display
 
 = 1.4.1, 2014-11-22 =
 * fixed: **IMPORTANT**: forms with no DPS PxPay feeds were sending blank notification emails (sorry Josh!)
