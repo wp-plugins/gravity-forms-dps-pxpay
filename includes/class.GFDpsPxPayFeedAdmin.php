@@ -105,8 +105,8 @@ class GFDpsPxPayFeedAdmin {
 	* @param array $metabox has metabox id, title, callback, and args elements.
 	*/
 	public function metaboxList($post, $metabox) {
-		$feedsURL = 'edit.php?post_type=' . GFDPSPXPAY_TYPE_FEED;
-		echo "<a href=\"$feedsURL\">Click to return to list</a>.\n";
+		$feedsURL = admin_url('edit.php?post_type=' . GFDPSPXPAY_TYPE_FEED);
+		printf('<a href="%s">Click to return to list</a>', esc_url($feedsURL));
 	}
 
 	/**
@@ -267,8 +267,8 @@ class GFDpsPxPayFeedAdmin {
 
 				$delete = array_pop($actions);		// pop the end link, so that we can "insert" ours before it
 
-				$actions['entries'] = sprintf('<a href="%s" title="%s">%s</a>',
-					add_query_arg(array('page' => 'gf_entries', 'id' => $feed->FormID), admin_url('admin.php')), 'View Entries', 'Entries');
+				$url = add_query_arg(array('page' => 'gf_entries', 'id' => $feed->FormID), admin_url('admin.php'));
+				$actions['entries'] = sprintf('<a href="%s" title="%s">%s</a>', esc_url($url), 'View Entries', 'Entries');
 
 				$actions['delete'] = $delete;		// replace the end link
 			}

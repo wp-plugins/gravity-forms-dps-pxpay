@@ -236,6 +236,8 @@ class GFDpsPxPayPaymentResponse {
 	*/
 	public $paymentURL;
 
+	protected $errorMessage;
+
 	/**
 	* load DPS PxPay response data as XML string
 	* @param string $response DPS PxPay response as a string (hopefully of XML data)
@@ -256,8 +258,31 @@ class GFDpsPxPayPaymentResponse {
 				throw new Exception($errmsg);
 			}
 
-			$this->isValid = ('1' === ((string) $xml['valid']));
-			$this->paymentURL = (string) $xml->URI;
+			if ('1' === ((string) $xml['valid'])) {
+				$this->isValid = true;
+				$this->paymentURL = (string) $xml->URI;
+
+				if (empty($this->paymentURL)) {
+					$this->isValid = false;
+
+					$this->errorMessage = (string) $xml->ResponseText;
+					if (empty($this->errorMessage)) {
+						$this->errorMessage = 'no hosted page URI given';
+					}
+				}
+			}
+			else {
+				$this->isValid = false;
+				$this->errorMessage = (string) $xml->ResponseText;
+				if (empty($this->errorMessage)) {
+					// API 1.0 passed error message in URI
+					$this->errorMessage = (string) $xml->URI;
+
+					if (empty($this->errorMessage)) {
+						$this->errorMessage = 'invalid request';
+					}
+				}
+			}
 
 			// restore old libxml settings
 			libxml_disable_entity_loader($oldDisableEntityLoader);
@@ -268,12 +293,12 @@ class GFDpsPxPayPaymentResponse {
 			libxml_disable_entity_loader($oldDisableEntityLoader);
 			libxml_use_internal_errors($oldUseInternalErrors);
 
-			throw new GFDpsPxPayException('Error parsing DPS PxPay generate response: ' . $e->getMessage());
+			throw new GFDpsPxPayException('Error parsing DPS PxPay request: ' . $e->getMessage());
 		}
 
-		// if response is "invalid", throw error with message given in URI field
+		// if response is "invalid", throw error with message
 		if (!$this->isValid) {
-			throw new GFDpsPxPayException('Error from DPS PxPay generate response: ' . $this->paymentURL);
+			throw new GFDpsPxPayException('Error from DPS PxPay request: ' . $this->errorMessage);
 		}
 	}
 }

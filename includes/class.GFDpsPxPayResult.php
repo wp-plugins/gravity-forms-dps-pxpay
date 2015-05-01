@@ -311,7 +311,7 @@ class GFDpsPxPayResultResponse {
 			libxml_disable_entity_loader($oldDisableEntityLoader);
 			libxml_use_internal_errors($oldUseInternalErrors);
 
-			throw new GFDpsPxPayException('Error parsing DPS PxPay result request: ' . $e->getMessage());
+			throw new GFDpsPxPayException('Error parsing DPS PxPay result: ' . $e->getMessage());
 		}
 
 		// if response is "invalid", throw error with message given in statusText field

@@ -405,11 +405,13 @@ class GFDpsPxPayPlugin {
 			else {
 				$entry['payment_status'] = 'Failed';
 				$this->errorMessage = 'Payment Express request invalid.';
+				self::log_debug($this->errorMessage);
 			}
 		}
 		catch (GFDpsPxPayException $e) {
 			$entry['payment_status'] = 'Failed';
 			$this->errorMessage = $e->getMessage();
+			self::log_debug($this->errorMessage);
 		}
 
 		// update the entry
@@ -432,15 +434,7 @@ class GFDpsPxPayPlugin {
 	* @return mixed
 	*/
 	public function gformConfirmation($confirmation, $form, $entry, $ajax) {
-		if ($this->paymentURL) {
-			// NB: GF handles redirect via JavaScript if headers already sent, or AJAX
-			$confirmation = array('redirect' => $this->paymentURL);
-			self::log_debug('Payment Express request valid, redirecting...');
-
-			$this->paymentURL = false;
-		}
-
-		elseif ($this->errorMessage) {
+		if ($this->errorMessage) {
 			$feed = $this->getFeed($form['id']);
 			if ($feed) {
 				// create a "confirmation message" in which to display the error
@@ -454,9 +448,17 @@ class GFDpsPxPayPlugin {
 				include GFDPSPXPAY_PLUGIN_ROOT . 'views/error-payment-failure.php';
 				$confirmation = ob_get_clean();
 			}
-
-			$this->errorMessage = false;
 		}
+
+		elseif ($this->paymentURL) {
+			// NB: GF handles redirect via JavaScript if headers already sent, or AJAX
+			$confirmation = array('redirect' => $this->paymentURL);
+			self::log_debug('Payment Express request valid, redirecting to: ' . $this->paymentURL);
+		}
+
+		// reset transient members
+		$this->errorMessage = false;
+		$this->paymentURL = false;
 
 		return $confirmation;
 	}
@@ -497,6 +499,8 @@ class GFDpsPxPayPlugin {
 					$lead = GFFormsModel::get_lead($lead_id);
 					$form = GFFormsModel::get_form_meta($lead['form_id']);
 					$feed = $this->getFeed($form['id']);
+
+					do_action('gfdpspxpay_process_return_parsed', $lead, $form, $feed);
 
 					// update lead entry, with success/fail details
 					if ($response->success) {
@@ -539,7 +543,7 @@ class GFDpsPxPayPlugin {
 					// on failure, redirect to failure page if set, otherwise fall through to redirect back to confirmation page
 					if ($lead['payment_status']	== 'Failed') {
 						if ($feed->UrlFail) {
-							wp_redirect($feed->UrlFail);
+							wp_redirect(esc_url_raw($feed->UrlFail));
 							exit;
 						}
 					}
@@ -547,7 +551,8 @@ class GFDpsPxPayPlugin {
 					// redirect to Gravity Forms page, passing form and lead IDs, encoded to deter simple attacks
 					$query = "form_id={$lead['form_id']}&lead_id={$lead['id']}";
 					$query .= "&hash=" . wp_hash($query);
-					wp_redirect(add_query_arg(array(self::PXPAY_RETURN => base64_encode($query)), $lead['source_url']));
+					$redirect_url = esc_url_raw(add_query_arg(array(self::PXPAY_RETURN => base64_encode($query)), $lead['source_url']));
+					wp_redirect($redirect_url);
 					exit;
 				}
 			}
@@ -583,6 +588,8 @@ class GFDpsPxPayPlugin {
 				// load form and lead data
 				$form = GFFormsModel::get_form_meta($query['form_id']);
 				$lead = GFFormsModel::get_lead($query['lead_id']);
+
+				do_action('gfdpspxpay_process_confirmation_parsed', $lead, $form);
 
 				// get confirmation page
 				if (!class_exists('GFFormDisplay')) {

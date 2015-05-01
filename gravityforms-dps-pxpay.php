@@ -3,13 +3,13 @@
 Plugin Name: Gravity Forms DPS PxPay
 Plugin URI: http://shop.webaware.com.au/downloads/gravity-forms-dps-pxpay/
 Description: Integrates Gravity Forms with DPS PxPay payment gateway, enabling end users to purchase goods and services through Gravity Forms.
-Version: 1.4.2
+Version: 1.4.3
 Author: WebAware
 Author URI: http://webaware.com.au/
 */
 
 /*
-copyright (c) 2013-2014 WebAware Pty Ltd (email : support@webaware.com.au)
+copyright (c) 2013-2015 WebAware Pty Ltd (email : support@webaware.com.au)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -34,7 +34,7 @@ define('GFDPSPXPAY_PLUGIN_ROOT', dirname(__FILE__) . '/');
 define('GFDPSPXPAY_PLUGIN_NAME', basename(dirname(__FILE__)) . '/' . basename(__FILE__));
 define('GFDPSPXPAY_PLUGIN_FILE', __FILE__);
 define('GFDPSPXPAY_PLUGIN_OPTIONS', 'gfdpspxpay_plugin');
-define('GFDPSPXPAY_PLUGIN_VERSION', '1.4.2');
+define('GFDPSPXPAY_PLUGIN_VERSION', '1.4.3');
 
 // custom post types
 define('GFDPSPXPAY_TYPE_FEED', 'gfdpspxpay_feed');

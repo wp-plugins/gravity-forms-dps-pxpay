@@ -134,7 +134,7 @@ class GFDpsPxPayAdmin {
 	public function addPluginActionLinks($links) {
 		// add settings link, but only if GravityForms plugin is active
 		if (self::isGfActive()) {
-			$settings_link = sprintf('<a href="%s">Settings</a>', admin_url('admin.php?page=gf_settings&subview=DPS+PxPay'));
+			$settings_link = sprintf('<a href="%s">Settings</a>', esc_url(admin_url('admin.php?page=gf_settings&subview=DPS+PxPay')));
 			array_unshift($links, $settings_link);
 		}
 
@@ -146,8 +146,8 @@ class GFDpsPxPayAdmin {
 	*/
 	public static function addPluginDetailsLinks($links, $file) {
 		if ($file == GFDPSPXPAY_PLUGIN_NAME) {
-			$links[] = '<a href="http://wordpress.org/support/plugin/gravity-forms-dps-pxpay">' . __('Get help') . '</a>';
-			$links[] = '<a href="http://wordpress.org/plugins/gravity-forms-dps-pxpay/">' . __('Rating') . '</a>';
+			$links[] = '<a href="https://wordpress.org/support/plugin/gravity-forms-dps-pxpay">' . __('Get help') . '</a>';
+			$links[] = '<a href="https://wordpress.org/plugins/gravity-forms-dps-pxpay/">' . __('Rating') . '</a>';
 			$links[] = '<a href="http://shop.webaware.com.au/downloads/gravity-forms-dps-pxpay/">' . __('Donate') . '</a>';
 		}
 
@@ -217,6 +217,8 @@ class GFDpsPxPayAdmin {
 	* @return array
 	*/
 	public function settingsValidate($input) {
+		$output = array();
+
 		$output['userID']			= trim($input['userID']);
 		$output['userKey']			= trim($input['userKey']);
 		$output['testID']			= trim($input['testID']);
