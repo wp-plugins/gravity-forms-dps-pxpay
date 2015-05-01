@@ -129,7 +129,9 @@ Developers can use these filter hooks to modify some invoice properties. Each fi
 Developers can run processes on these actions (e.g. load classes required to handle invoice presentation):
 
 * `gfdpspxpay_process_return`
+* `gfdpspxpay_process_return_parsed`
 * `gfdpspxpay_process_confirmation`
+* `gfdpspxpay_process_confirmation_parsed`
 
 == Contributions ==
 
