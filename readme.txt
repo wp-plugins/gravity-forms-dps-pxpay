@@ -3,10 +3,10 @@ Contributors: webaware, IstanbulMMV
 Plugin Name: Gravity Forms DPS PxPay
 Plugin URI: http://shop.webaware.com.au/downloads/gravity-forms-dps-pxpay/
 Author URI: http://webaware.com.au/
-Donate link: http://shop.webaware.com.au/downloads/gravity-forms-dps-pxpay/
+Donate link: http://shop.webaware.com.au/donations/?donation_for=Gravity+Forms+DPS+PxPay
 Tags: gravityforms, gravity forms, gravity, dps, payment express, pxpay, donation, donations, payment, payment gateway, ecommerce, credit cards, new zealand, australia
 Requires at least: 3.7.1
-Tested up to: 4.2.1
+Tested up to: 4.3
 Stable tag: 1.4.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -148,13 +148,16 @@ Developers can run processes on these actions (e.g. load classes required to han
 * added: action `gfdpspxpay_process_confirmation_parsed` with `$entry`, `$form`
 
 = 1.4.2, 2014-12-23 =
+
 * added: hooks `gfdpspxpay_process_return` and `gfdpspxpay_process_confirmation`
 * changed: merge tags use currency of transaction for amount display
 
 = 1.4.1, 2014-11-22 =
+
 * fixed: **IMPORTANT**: forms with no DPS PxPay feeds were sending blank notification emails (sorry Josh!)
 
 = 1.4.0, 2014-11-06 =
+
 * added: delay user registration until payment is processed
 * added: support for PxPay API v2.0, via option (default is v2.0 for new installs)
 * added: custom entry meta `authcode` and `payment_gateway` which can be added to listings, used in notification conditions
@@ -165,16 +168,20 @@ Developers can run processes on these actions (e.g. load classes required to han
 * changed: minimum requirements now WordPress 3.7.1, Gravity Forms 1.7
 
 = 1.3.3, 2014-08-15 =
+
 * added: basic support for Gravity Forms Logging Add-On, to assist support requests
 
 = 1.3.2, 2014-06-25 =
+
 * fixed: Gravity Forms 1.8.9 Payment Details box on entry details
 
 = 1.3.1, 2014-06-12 =
+
 * fixed: admin scripts / stylesheet not loading, feed admin broken
 * fixed: don't attempt to make a payment when the total is 0, so form entry can still be submitted
 
 = 1.3.0, 2014-06-07 =
+
 * fixed: hidden products are now correctly handled
 * fixed: shipping is now correctly handled
 * fixed: RGFormsModel::update_lead() is deprecated in Gravity Forms v1.8.8
@@ -184,10 +191,12 @@ Developers can run processes on these actions (e.g. load classes required to han
 * changed: some code refactoring
 
 = 1.2.1, 2014-05-14 =
+
 * fixed: products with separate quantity fields fail
 * fixed: undefined index 'post_status' when saving feed
 
 = 1.2.0, 2014-01-17 =
+
 * fixed: transaction ID was not unique between installations with same account
 * fixed: settings wouldn't save in WordPress multisite installations
 * fixed: Get Help link to support forum
@@ -197,17 +206,20 @@ Developers can run processes on these actions (e.g. load classes required to han
 * changed: some code refactoring for maintenance / compatibility
 
 = 1.1.0, 2013-04-26 =
+
 * fixed: Gravity Forms 1.7 compatibility fixes for deferring the new multiple notifications
 * fixed: WordPress SEO setting "Redirect ugly URL's to clean permalinks" breaks many things, including this plugin (but not any more)
 * fixed: nonce (number once) handling in settings admin
 * added: entries links on feeds admin
 
 = 1.0.1, 2013-04-12 =
+
 * fixed: amounts greater than 999.99 work correctly (was getting an IU error on Payment Express screen)
 * fixed: don't squabble with other plugins for custom merge tags of same name
 * fixed: don't stomp on admin page icons for other Gravity Forms plugins
 
 = 1.0.0, 2013-01-25 =
+
 * initial public release
 
 == Upgrade Notice ==
